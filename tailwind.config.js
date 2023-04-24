@@ -1,3 +1,6 @@
+const { fontFamily } = require('tailwindcss/defaultTheme')
+const colors = require('tailwindcss/colors')
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -7,11 +10,17 @@ module.exports = {
   ],
   theme: {
     extend: {
-      backgroundImage: {
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gradient-conic':
-          'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
+      fontFamily: { 
+        sans: ['var(--font-inter)', ...fontFamily.sans],
       },
+      colors: {
+        'primary': {
+          DEFAULT: '#01B04E',
+        },
+      }
+    },
+    container: {
+      
     },
   },
   plugins: [],
