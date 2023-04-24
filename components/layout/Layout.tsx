@@ -127,7 +127,7 @@ const Layout: React.FC<LayoutProps> = ({
             })}
           </ul>
           {currentRole !== 'guest' && (
-            <button className="mt-auto flex items-center justify-center text-primary w-full h-12 min-h-[48px] rounded border border-primary">
+            <button className="font-medium mt-auto flex items-center justify-center text-primary w-full h-12 min-h-[48px] rounded border border-primary">
               Log Out
             </button>
           )}
