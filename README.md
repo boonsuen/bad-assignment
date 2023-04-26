@@ -1,3 +1,30 @@
+This is a hardhat project.
+
+```shell
+#=====DEPLOYING=====
+# set up a hardhat backend server node
+npx hardhat node
+# to deploy onto a local node (hardhat)
+npx hardhat run scripts/deploy.js --network localhost
+# to deploy onto a local ganache node
+npx hardhat run scripts/deploy.js --network localganache
+
+#=====LEARN MORE=====
+npx hardhat help
+npx hardhat test
+REPORT_GAS=true npx hardhat test
+```
+
+For local ganache network:
+
+1. Create a .env.local file in your project root folder.
+2. Insert local variables:
+
+```bash
+CONTRACT_ADDRESS = "[Insert contract address here]"
+OWNER_PRIVATE_KEY = "[Insert owner private key here]"
+```
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
