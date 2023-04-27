@@ -16,6 +16,7 @@ contract DTrace {
     //=================================
 
     enum DurianStatus {
+        Pending,
         Harvested,
         ArrivedDC,
         ArrivedRT,
@@ -30,7 +31,7 @@ contract DTrace {
     }
 
     //=================================
-    // STRUCTs
+    // STRUCTs & EVENTs
     //=================================
 
     //DURIAN STRUCT
@@ -44,6 +45,8 @@ contract DTrace {
         DurianCSDetails durianCSDetails;
     }
 
+    event DurianCreated(uint256 durianID);
+
     //FARM DETAILS IN DURIAN STRUCT
     struct DurianFarmDetails {
         uint256 farmID;
@@ -56,6 +59,15 @@ contract DTrace {
         Rating conditionFarm;
     }
 
+    event DurianFarmDetailsCreated(
+        uint256 farmID,
+        uint256 treeID,
+        string varietyCode,
+        uint256 harvestedTime,
+        uint256 durianImg,
+        Rating conditionFarm
+    );
+
     //DISTRIBUTION CENTER DETAILS IN DURIAN STRUCT
     struct DurianDCDetails {
         uint256 distributionCenterID;
@@ -64,6 +76,13 @@ contract DTrace {
         Rating conditionDC;
     }
 
+    event DurianDCDetailsCreated(
+        uint256 distributionCenterID,
+        uint256 arrivalTimeDC,
+        uint256 durianImg,
+        Rating conditionDC
+    );
+
     //RETAILER DETAILS IN DURIAN STRUCT
     struct DurianRTDetails {
         uint256 retailerID;
@@ -71,6 +90,13 @@ contract DTrace {
         uint256 durianImg;
         Rating conditionRT;
     }
+
+    event DurianRTDetailsCreated(
+        uint256 retailerID,
+        uint256 arrivalTimeRT,
+        uint256 durianImg,
+        Rating conditionRT
+    );
 
     //CONSUMER DETAILS IN DURIAN STRUCT
     struct DurianCSDetails {
@@ -82,6 +108,15 @@ contract DTrace {
         Rating creaminess;
     }
 
+    event DurianCSDetailsCreated(
+        uint256 consumerID,
+        uint256 soldTime,
+        uint256 durianImg,
+        Rating taste,
+        Rating fragrance,
+        Rating creaminess
+    );
+
     //===Farm, DC, RT, Consumer===
 
     //FARM STRUCT
@@ -92,6 +127,13 @@ contract DTrace {
         string farmLocation;
     }
 
+    event FarmCreated(
+        uint256 farmID,
+        address farmAddress,
+        string farmName,
+        string farmLocation
+    );
+
     //DISTRIBUTION CENTER STRUCT
     struct DistributionCenter {
         uint256 distributionCenterID;
@@ -99,6 +141,13 @@ contract DTrace {
         string distributionCenterName;
         string distributionCenterLocation;
     }
+
+    event DistributionCenterCreated(
+        uint256 distributionCenterID,
+        address distributionCenterAddress,
+        string distributionCenterName,
+        string distributionCenterLocation
+    );
 
     //RETAILER STRUCT
     struct Retailler {
@@ -108,12 +157,25 @@ contract DTrace {
         string retailerLocation;
     }
 
+    event RetaillerCreated(
+        uint256 retailerID,
+        address retailerAddress,
+        string retailerName,
+        string retailerLocation
+    );
+
     //CONSUMER STRUCT
     struct Consumer {
         uint256 consumerID;
         address consumerAddress;
         string consumerName;
     }
+
+    event ConsumerCreated(
+        uint256 consumerID,
+        address consumerAddress,
+        string consumerName
+    );
 
     //=================================
     // STATE VARIABLES
@@ -144,7 +206,7 @@ contract DTrace {
 
     //CONTRACT OWNER & ADMIN
     address public contractOwner;
-    address[] public adminAddresses;
+    mapping(address => bool) public admins;
 
     //=================================
     // CONSTRUCTOR
@@ -154,20 +216,542 @@ contract DTrace {
     }
 
     //=================================
+    // FUNCTION MODIFIERS
+    //=================================
+
+    //===ROLES===
+
+    //only contract owner
+    modifier onlyOwner() {
+        require(msg.sender == contractOwner, "Caller is not contract owner");
+        _;
+    }
+
+    //only admin
+    modifier onlyAdmin() {
+        require(admins[msg.sender], "Caller is not an admin");
+        _;
+    }
+
+    //only farm
+    modifier onlyFarm() {
+        require(
+            farms[msg.sender].farmAddress == msg.sender,
+            "Caller is not a farm"
+        );
+        _;
+    }
+
+    //only distribution center
+    modifier onlyDistributionCenter() {
+        require(
+            distributionCenters[msg.sender].distributionCenterAddress ==
+                msg.sender,
+            "Caller is not a distribution center"
+        );
+        _;
+    }
+
+    //only retailer
+    modifier onlyRetailer() {
+        require(
+            retaillers[msg.sender].retailerAddress == msg.sender,
+            "Caller is not a retailer"
+        );
+        _;
+    }
+
+    //only consumer
+    modifier onlyConsumer() {
+        require(
+            consumers[msg.sender].consumerAddress == msg.sender,
+            "Caller is not a consumer"
+        );
+        _;
+    }
+
+    //===DURIAN STATUS===
+
+    //only pending durian
+    modifier onlyPendingDurian(uint256 _durianID) {
+        require(
+            durians[_durianID].status == DurianStatus.Pending,
+            "Durian is not pending"
+        );
+        _;
+    }
+
+    //only harvested durian
+    modifier onlyHarvestedDurian(uint256 _durianID) {
+        require(
+            durians[_durianID].status == DurianStatus.Harvested,
+            "Durian is not harvested"
+        );
+        _;
+    }
+
+    //only arrived DC durian
+    modifier onlyArrivedDCDurian(uint256 _durianID) {
+        require(
+            durians[_durianID].status == DurianStatus.ArrivedDC,
+            "Durian is not yet arrived DC"
+        );
+        _;
+    }
+
+    //only arrived RT durian
+    modifier onlyArrivedRTDurian(uint256 _durianID) {
+        require(
+            durians[_durianID].status == DurianStatus.ArrivedRT,
+            "Durian is not yet arrived RT"
+        );
+        _;
+    }
+
+    //only sold durian
+    modifier onlySoldDurian(uint256 _durianID) {
+        require(
+            durians[_durianID].status == DurianStatus.Sold,
+            "Durian is not sold"
+        );
+        _;
+    }
+
+    //=================================
+    // ADMIN FUNCTIONS
+    //=================================
+
+    //ADD ADMIN
+    function addAdmin(address _adminAddress) public onlyOwner {
+        admins[_adminAddress] = true;
+    }
+
+    //=================================
+    // DURIAN FUNCTIONS
+    //=================================
+
+    //===CHECK DURIAN===
+    //CHECK TOTAL DURIAN
+    function checkTotalDurian() public view returns (uint256) {
+        return durianNum.current();
+    }
+
+    //CHECK DURIAN STATUS
+    function checkDurianStatus(
+        uint256 _durianID
+    ) public view returns (DurianStatus) {
+        return durians[_durianID].status;
+    }
+
+    //CHECK DURIAN FARM DETAILS
+    function checkDurianFarmDetails(
+        uint256 _durianID
+    )
+        public
+        view
+        onlyHarvestedDurian(_durianID)
+        returns (uint256, uint256, string memory, uint256, uint256, Rating)
+    {
+        return (
+            durians[_durianID].durianFarmDetails.farmID,
+            durians[_durianID].durianFarmDetails.treeID,
+            durians[_durianID].durianFarmDetails.varietyCode,
+            durians[_durianID].durianFarmDetails.harvestedTime,
+            durians[_durianID].durianFarmDetails.durianImg,
+            durians[_durianID].durianFarmDetails.conditionFarm
+        );
+    }
+
+    //CHECK DURIAN DC DETAILS
+    function checkDurianDCDetails(
+        uint256 _durianID
+    )
+        public
+        view
+        onlyArrivedDCDurian(_durianID)
+        returns (uint256, uint256, uint256, Rating)
+    {
+        return (
+            durians[_durianID].durianDCDetails.distributionCenterID,
+            durians[_durianID].durianDCDetails.arrivalTimeDC,
+            durians[_durianID].durianDCDetails.durianImg,
+            durians[_durianID].durianDCDetails.conditionDC
+        );
+    }
+
+    //CHECK DURIAN RT DETAILS
+    function checkDurianRTDetails(
+        uint256 _durianID
+    )
+        public
+        view
+        onlyArrivedRTDurian(_durianID)
+        returns (uint256, uint256, uint256, Rating)
+    {
+        return (
+            durians[_durianID].durianRTDetails.retailerID,
+            durians[_durianID].durianRTDetails.arrivalTimeRT,
+            durians[_durianID].durianRTDetails.durianImg,
+            durians[_durianID].durianRTDetails.conditionRT
+        );
+    }
+
+    //CHECK DURIAN CONSUMER DETAILS
+    function checkDurianCSDetails(
+        uint256 _durianID
+    )
+        public
+        view
+        onlySoldDurian(_durianID)
+        returns (uint256, uint256, uint256, Rating, Rating, Rating)
+    {
+        return (
+            durians[_durianID].durianCSDetails.consumerID,
+            durians[_durianID].durianCSDetails.soldTime,
+            durians[_durianID].durianCSDetails.durianImg,
+            durians[_durianID].durianCSDetails.taste,
+            durians[_durianID].durianCSDetails.fragrance,
+            durians[_durianID].durianCSDetails.creaminess
+        );
+    }
+
+    //===ADD & UPDATE DURIAN===
+    //ADD NEW DURIAN
+    function addDurian(
+        uint256 _farmID,
+        uint256 _treeID,
+        string memory _varietyCode,
+        uint256 _harvestedTime,
+        uint256 _durianImg,
+        Rating _conditionFarm
+    ) public onlyFarm {
+        durianNum.increment();
+        uint256 _durianID = durianNum.current();
+        durians[_durianID].durianID = _durianID;
+        emit DurianCreated(_durianID);
+
+        //ADD DURIANFARMDETAILS
+        addDurianFarmDetails(
+            _durianID,
+            _farmID,
+            _treeID,
+            _varietyCode,
+            _harvestedTime,
+            _durianImg,
+            _conditionFarm
+        );
+    }
+
+    //ADD DURIANFARMDETAILS (onlyFarm)
+    function addDurianFarmDetails(
+        uint256 _durianID,
+        uint256 _farmID,
+        uint256 _treeID,
+        string memory _varietyCode,
+        uint256 _harvestedTime,
+        uint256 _durianImg,
+        Rating _conditionFarm
+    ) public onlyFarm onlyPendingDurian(_durianID) {
+        DurianFarmDetails memory newDurianFarmDetails = DurianFarmDetails(
+            _farmID,
+            _treeID,
+            _varietyCode,
+            _harvestedTime,
+            _durianImg,
+            _conditionFarm
+        );
+        durians[_durianID].durianFarmDetails = newDurianFarmDetails;
+
+        emit DurianFarmDetailsCreated(
+            _farmID,
+            _treeID,
+            _varietyCode,
+            _harvestedTime,
+            _durianImg,
+            _conditionFarm
+        );
+    }
+
+    //ADD DURIANDCDETAILS (onlyDistributionCenter)
+    function addDurianDCDetails(
+        uint256 _durianID,
+        uint256 _distributionCenterID,
+        uint256 _soldTime,
+        uint256 _durianImg,
+        Rating _conditionDC
+    ) public onlyDistributionCenter onlyArrivedDCDurian(_durianID) {
+        DurianDCDetails memory newDurianDCDetails = DurianDCDetails(
+            _distributionCenterID,
+            _soldTime,
+            _durianImg,
+            _conditionDC
+        );
+        durians[_durianID].durianDCDetails = newDurianDCDetails;
+
+        emit DurianDCDetailsCreated(
+            _distributionCenterID,
+            _soldTime,
+            _durianImg,
+            _conditionDC
+        );
+    }
+
+    //ADD DURIANRTDETAILS (onlyRetailer)
+    function addDurianRTDetails(
+        uint256 _durianID,
+        uint256 _retailerID,
+        uint256 _soldTime,
+        uint256 _durianImg,
+        Rating _conditionRT
+    ) public onlyRetailer onlyArrivedRTDurian(_durianID) {
+        DurianRTDetails memory newDurianRTDetails = DurianRTDetails(
+            _retailerID,
+            _soldTime,
+            _durianImg,
+            _conditionRT
+        );
+        durians[_durianID].durianRTDetails = newDurianRTDetails;
+
+        emit DurianRTDetailsCreated(
+            _retailerID,
+            _soldTime,
+            _durianImg,
+            _conditionRT
+        );
+    }
+
+    //ADD DURIANCSDETAILS (onlyConsumer)
+    function addDurianCSDetails(
+        uint256 _durianID,
+        uint256 _consumerID,
+        uint256 _soldTime,
+        uint256 _durianImg,
+        Rating _taste,
+        Rating _fragrance,
+        Rating _creaminess
+    ) public onlyConsumer onlySoldDurian(_durianID) {
+        DurianCSDetails memory newDurianCSDetails = DurianCSDetails(
+            _consumerID,
+            _soldTime,
+            _durianImg,
+            _taste,
+            _fragrance,
+            _creaminess
+        );
+        durians[_durianID].durianCSDetails = newDurianCSDetails;
+
+        emit DurianCSDetailsCreated(
+            _consumerID,
+            _soldTime,
+            _durianImg,
+            _taste,
+            _fragrance,
+            _creaminess
+        );
+    }
+
+    //=================================
     // FARM FUNCTIONS
     //=================================
 
-    //CREATE FARM
+    //ADD FARM (onlyAdmin and onlyOwner)
+    function addFarm(
+        address _farmAddress,
+        string memory _farmName,
+        string memory _farmLocation
+    ) public onlyAdmin onlyOwner {
+        farmNum.increment();
+        uint256 _farmID = farmNum.current();
+
+        Farm memory newFarm = Farm(
+            _farmID,
+            _farmAddress,
+            _farmName,
+            _farmLocation
+        );
+        farms[_farmAddress] = newFarm;
+        farmAddresses.push(_farmAddress);
+
+        emit FarmCreated(_farmID, _farmAddress, _farmName, _farmLocation);
+    }
+
+    //GET FARM LIST
+    function getFarmList() public view returns (address[] memory) {
+        return farmAddresses;
+    }
+
+    //GET FARM TOTAL
+    function getFarmTotal() public view returns (uint256) {
+        return farmAddresses.length;
+    }
+
+    //GET FARM DATA
+    function getFarmData(
+        address _farmAddress
+    ) public view returns (uint256, address, string memory, string memory) {
+        Farm memory _farm = farms[_farmAddress];
+        return (
+            _farm.farmID,
+            _farm.farmAddress,
+            _farm.farmName,
+            _farm.farmLocation
+        );
+    }
 
     //=================================
     // DISTRIBUTION CENTER FUNCTIONS
     //=================================
 
+    //ADD DISTRIBUTION CENTER (onlyAdmin and onlyOwner)
+    function addDistributionCenter(
+        address _distributionCenterAddress,
+        string memory _distributionCenterName,
+        string memory _distributionCenterLocation
+    ) public onlyAdmin onlyOwner {
+        distributionCenterNum.increment();
+        uint256 _distributionCenterID = distributionCenterNum.current();
+
+        DistributionCenter memory newDistributionCenter = DistributionCenter(
+            _distributionCenterID,
+            _distributionCenterAddress,
+            _distributionCenterName,
+            _distributionCenterLocation
+        );
+        distributionCenters[_distributionCenterAddress] = newDistributionCenter;
+        distributionCenterAddresses.push(_distributionCenterAddress);
+
+        emit DistributionCenterCreated(
+            _distributionCenterID,
+            _distributionCenterAddress,
+            _distributionCenterName,
+            _distributionCenterLocation
+        );
+    }
+
+    //GET DISTRIBUTION CENTER LIST
+    function getDistributionCenterList()
+        public
+        view
+        returns (address[] memory)
+    {
+        return distributionCenterAddresses;
+    }
+
+    //GET DISTRIBUTION CENTER TOTAL
+    function getDistributionCenterTotal() public view returns (uint256) {
+        return distributionCenterNum.current();
+    }
+
+    //GET DISTRIBUTION CENTER DATA
+    function getDistributionCenterData(
+        address _distributionCenterAddress
+    ) public view returns (uint256, address, string memory, string memory) {
+        DistributionCenter memory _distributionCenter = distributionCenters[
+            _distributionCenterAddress
+        ];
+        return (
+            _distributionCenter.distributionCenterID,
+            _distributionCenter.distributionCenterAddress,
+            _distributionCenter.distributionCenterName,
+            _distributionCenter.distributionCenterLocation
+        );
+    }
+
     //=================================
     // RETAILER FUNCTIONS
     //=================================
 
+    //ADD RETAILER (onlyAdmin and onlyOwner)
+    function addRetailer(
+        address _retailerAddress,
+        string memory _retailerName,
+        string memory _retailerLocation
+    ) public onlyAdmin onlyOwner {
+        retailerNum.increment();
+        uint256 _retailerID = retailerNum.current();
+
+        Retailler memory newRetailler = Retailler(
+            _retailerID,
+            _retailerAddress,
+            _retailerName,
+            _retailerLocation
+        );
+        retaillers[_retailerAddress] = newRetailler;
+        retailerAddresses.push(_retailerAddress);
+
+        emit RetaillerCreated(
+            _retailerID,
+            _retailerAddress,
+            _retailerName,
+            _retailerLocation
+        );
+    }
+
+    //GET RETAILER LIST
+    function getRetailerList() public view returns (address[] memory) {
+        return retailerAddresses;
+    }
+
+    //GET RETAILER TOTAL
+    function getRetailerTotal() public view returns (uint256) {
+        return retailerNum.current();
+    }
+
+    //GET RETAILER DATA
+    function getRetailerData(
+        address _retailerAddress
+    ) public view returns (uint256, address, string memory, string memory) {
+        Retailler memory retailler = retaillers[_retailerAddress];
+        return (
+            retailler.retailerID,
+            retailler.retailerAddress,
+            retailler.retailerName,
+            retailler.retailerLocation
+        );
+    }
+
     //=================================
     // CONSUMER FUNCTIONS
     //=================================
+
+    //ADD CONSUMER (onlyAdmin, onlyOwner, and onlyRetailer)
+    function addConsumer(
+        address _consumerAddress,
+        string memory _consumerName
+    ) public onlyAdmin onlyOwner onlyRetailer {
+        consumerNum.increment();
+        uint256 _consumerID = consumerNum.current();
+
+        Consumer memory newConsumer = Consumer(
+            _consumerID,
+            _consumerAddress,
+            _consumerName
+        );
+        consumers[_consumerAddress] = newConsumer;
+        consumerAddresses.push(_consumerAddress);
+
+        emit ConsumerCreated(_consumerID, _consumerAddress, _consumerName);
+    }
+
+    //GET CONSUMER LIST
+    function getConsumerList() public view returns (address[] memory) {
+        return consumerAddresses;
+    }
+
+    //GET CONSUMER COUNT
+    function getConsumerCount() public view returns (uint256) {
+        return consumerNum.current();
+    }
+
+    //GET CONSUMER DATA
+    function getConsumerData(
+        address _consumerAddress
+    ) public view returns (uint256, address, string memory) {
+        Consumer memory consumer = consumers[_consumerAddress];
+        return (
+            consumer.consumerID,
+            consumer.consumerAddress,
+            consumer.consumerName
+        );
+    }
 }
