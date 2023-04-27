@@ -1,8 +1,7 @@
-# Getting Started
+This is a hardhat project.
+It's also a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Hardhat
-
-This is a hardhat project.
 
 ```shell
 #=====DEPLOYING=====
@@ -34,8 +33,6 @@ IPFS_PROJECT_SECRET_KEY = "[Insert IPFS project secret key here]"
 ```
 
 ## Next.js
-
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 First, run the development server:
 
