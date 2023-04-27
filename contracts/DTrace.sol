@@ -5,10 +5,15 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "hardhat/console.sol";
 
 contract DTrace {
-    //COUNTER UTIL
+    //=================================
+    // UTILs
+    //=================================
+
     using Counters for Counters.Counter;
 
-    Counters.Counter public _durianId;
+    //=================================
+    // ENUMs
+    //=================================
 
     enum DurianStatus {
         Harvested,
@@ -24,13 +29,14 @@ contract DTrace {
         Excellent
     }
 
+    //=================================
+    // STRUCTs
+    //=================================
+
     //DURIAN STRUCT
     struct Durian {
         //DURIAN DETAILS
-        // uint256 durianID,
-        uint256 durianImg; //ipfs url
-        //D197, DQ1 (durian sarawak), DB1 (durian belanda)
-        string varietyCode;
+        uint256 durianID;
         DurianStatus status; //default = "Harvested"
         DurianFarmDetails durianFarmDetails;
         DurianDCDetails durianDCDetails;
@@ -38,44 +44,129 @@ contract DTrace {
         DurianCSDetails durianCSDetails;
     }
 
+    //FARM DETAILS IN DURIAN STRUCT
     struct DurianFarmDetails {
-        //FARM DETAILS
         uint256 farmID;
         uint256 treeID;
-        uint256 harvestedDate; //button clicked time
+        // D197, DQ1 (durian sarawak), DB1 (durian belanda)
+        string varietyCode;
+        //epoch time
+        uint256 harvestedTime; //button clicked time
+        uint256 durianImg; //ipfs url
+        Rating conditionFarm;
     }
 
+    //DISTRIBUTION CENTER DETAILS IN DURIAN STRUCT
     struct DurianDCDetails {
-        //DISTRIBUTION CENTER DETAILS
         uint256 distributionCenterID;
         uint256 arrivalTimeDC;
+        uint256 durianImg;
         Rating conditionDC;
     }
 
+    //RETAILER DETAILS IN DURIAN STRUCT
     struct DurianRTDetails {
-        //RETAILER DETAILS
         uint256 retailerID;
         uint256 arrivalTimeRT;
+        uint256 durianImg;
         Rating conditionRT;
     }
 
+    //CONSUMER DETAILS IN DURIAN STRUCT
     struct DurianCSDetails {
-        //CONSUMER DETAILS
         uint256 consumerID;
-        uint256 soldDate;
+        uint256 soldTime;
+        uint256 durianImg;
         Rating taste;
         Rating fragrance;
         Rating creaminess;
     }
 
+    //===Farm, DC, RT, Consumer===
+
+    //FARM STRUCT
+    struct Farm {
+        uint256 farmID;
+        address farmAddress;
+        string farmName;
+        string farmLocation;
+    }
+
+    //DISTRIBUTION CENTER STRUCT
+    struct DistributionCenter {
+        uint256 distributionCenterID;
+        address distributionCenterAddress;
+        string distributionCenterName;
+        string distributionCenterLocation;
+    }
+
+    //RETAILER STRUCT
+    struct Retailler {
+        uint256 retailerID;
+        address retailerAddress;
+        string retailerName;
+        string retailerLocation;
+    }
+
+    //CONSUMER STRUCT
+    struct Consumer {
+        uint256 consumerID;
+        address consumerAddress;
+        string consumerName;
+    }
+
+    //=================================
+    // STATE VARIABLES
+    //=================================
+
     //CONTRACT OWNER ADDRESS
     address public contractOwner;
+
+    //TOTAL NUMBER OF DURIAN, FARM, DC, RT, CONSUMER
+    Counters.Counter public durianNum;
+    Counters.Counter public farmNum;
+    Counters.Counter public distributionCenterNum;
+    Counters.Counter public retailerNum;
+    Counters.Counter public consumerNum;
 
     //DURIAN MAPPING
     mapping(uint256 => Durian) public durians;
 
-    //CONSTRUCTOR
+    //Farm, DC, RT, Consumer MAPPING
+    address[] public farmAddress;
+    mapping(address => Farm) public farms;
+
+    address[] public distributionCenterAddress;
+    mapping(address => DistributionCenter) public distributionCenters;
+
+    address[] public retailerAddress;
+    mapping(address => Retailler) public retaillers;
+
+    address[] public consumerAddress;
+    mapping(address => Consumer) public consumers;
+
+    //=================================
+    // CONSTRUCTOR
+    //=================================
     constructor() {
         contractOwner = msg.sender;
     }
+
+    //=================================
+    // FARM FUNCTIONS
+    //=================================
+
+    //CREATE FARM
+
+    //=================================
+    // DISTRIBUTION CENTER FUNCTIONS
+    //=================================
+
+    //=================================
+    // RETAILER FUNCTIONS
+    //=================================
+
+    //=================================
+    // CONSUMER FUNCTIONS
+    //=================================
 }
