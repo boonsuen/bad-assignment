@@ -8,9 +8,9 @@ It's also a [Next.js](https://nextjs.org/) project bootstrapped with [`create-ne
 # set up a hardhat backend server node
 npx hardhat node
 # to deploy onto a local node (hardhat)
-npx hardhat run scripts/deploy.js --network localhost
+npx hardhat run scripts/deploy.ts --network localhost
 # to deploy onto a local ganache node
-npx hardhat run scripts/deploy.js --network localganache
+npx hardhat run scripts/deploy.ts --network localganache
 
 #=====LEARN MORE=====
 npx hardhat help
@@ -25,11 +25,13 @@ First, create a `.env.local` file in your project root folder.
 ```bash
 #For local ganache network:
 CONTRACT_ADDRESS = "[Insert contract address here]"
+GANACHE_PROVIDER_URL = "[Insert ganache server url here]" #HTTP://127.0.0.1:7545
 OWNER_PRIVATE_KEY = "[Insert owner private key here]"
 
 #For IPFS:
 IPFS_PROJECT_ID = "[Insert IPFS project ID here]"
 IPFS_PROJECT_SECRET_KEY = "[Insert IPFS project secret key here]"
+IPFS_SUBDOMAIN = "[Insert IPFS subdomain here]"
 ```
 
 ## Next.js

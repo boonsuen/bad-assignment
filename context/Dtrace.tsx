@@ -5,16 +5,17 @@ import { create as ipfsHttpClient } from "ipfs-http-client";
 
 // //Smart Contract
 // //might move to constant.ts file
-// import dtrace from "../artifacts/DTrace.json";
-// const contractAdress = process.env.CONTRACT_ADDRESS;
-// const contractABI = dtrace.abi;
+// Smart Contract Address and ABI
+import dtrace from "./DTrace.json";
+const contractAddress = process.env.CONTRACT_ADDRESS;
+const contractABI = dtrace.abi;
 
 //IPFS
 const ipfsProjectId = process.env.IPFS_PROJECT_ID;
 const ipfsProjectSecretKey = process.env.IPFS_PROJECT_SECRET_KEY;
 
 const authorization = "Basic " + btoa(ipfsProjectId + ":" + ipfsProjectSecretKey);
-const subdomain = "https://blockchain-election.infura-ipfs.io";
+const subdomain = process.env.IPFS_SUBDOMAIN;
 
 const client = ipfsHttpClient({
     host: "infura-ipfs.io",

@@ -10,42 +10,67 @@ contract DTrace {
 
     Counters.Counter public _durianId;
 
-    Enum DurianStatus {Harvested, ArrivedDC, ArrivedRT, Sold}
-    Enum Rating {Bad, Poor, Fair, Good, Excellent} 
-    
+    enum DurianStatus {
+        Harvested,
+        ArrivedDC,
+        ArrivedRT,
+        Sold
+    }
+    enum Rating {
+        Bad,
+        Poor,
+        Fair,
+        Good,
+        Excellent
+    }
+
     //DURIAN STRUCT
     struct Durian {
         //DURIAN DETAILS
-        // uint256 durianID, 
-        uint256 durianImg, //ipfs url
+        // uint256 durianID,
+        uint256 durianImg; //ipfs url
         //D197, DQ1 (durian sarawak), DB1 (durian belanda)
-        string varietyCode, 
-        durianStatus status, //default = "Harvested"
-        
-        //FARM DETAILS
-        uint256 farmID,
-        uint256 treeID,
-        uint256 harvestedDate, //button clicked time
+        string varietyCode;
+        DurianStatus status; //default = "Harvested"
+        DurianFarmDetails durianFarmDetails;
+        DurianDCDetails durianDCDetails;
+        DurianRTDetails durianRTDetails;
+        DurianCSDetails durianCSDetails;
+    }
 
+    struct DurianFarmDetails {
+        //FARM DETAILS
+        uint256 farmID;
+        uint256 treeID;
+        uint256 harvestedDate; //button clicked time
+    }
+
+    struct DurianDCDetails {
         //DISTRIBUTION CENTER DETAILS
-        uint256 distributionCenterID,
-        uint256 arrivalTimeDC, 
-        Rating conditionDC,
-        
+        uint256 distributionCenterID;
+        uint256 arrivalTimeDC;
+        Rating conditionDC;
+    }
+
+    struct DurianRTDetails {
         //RETAILER DETAILS
-        uint256 retailerID, 
-        uint256 arrivalTimeRT, 
-        Rating conditionRT,
-        
+        uint256 retailerID;
+        uint256 arrivalTimeRT;
+        Rating conditionRT;
+    }
+
+    struct DurianCSDetails {
         //CONSUMER DETAILS
-        uint256 consumerID, 
-        uint256 soldDate, 
-        Rating taste, fragrance, creaminess
+        uint256 consumerID;
+        uint256 soldDate;
+        Rating taste;
+        Rating fragrance;
+        Rating creaminess;
     }
 
     //CONTRACT OWNER ADDRESS
     address public contractOwner;
-    
+
     //DURIAN MAPPING
     mapping(uint256 => Durian) public durians;
 
