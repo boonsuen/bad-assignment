@@ -34,7 +34,13 @@ IPFS_PROJECT_SECRET_KEY = "[Insert IPFS project secret key here]"
 
 ## Next.js
 
-First, run the development server:
+First, install the packages by running:
+
+```bash
+npm install
+```
+
+Then, run the development server:
 
 ```bash
 npm run dev
