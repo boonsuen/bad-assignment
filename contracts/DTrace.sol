@@ -119,9 +119,6 @@ contract DTrace {
     // STATE VARIABLES
     //=================================
 
-    //CONTRACT OWNER ADDRESS
-    address public contractOwner;
-
     //TOTAL NUMBER OF DURIAN, FARM, DC, RT, CONSUMER
     Counters.Counter public durianNum;
     Counters.Counter public farmNum;
@@ -133,17 +130,21 @@ contract DTrace {
     mapping(uint256 => Durian) public durians;
 
     //Farm, DC, RT, Consumer MAPPING
-    address[] public farmAddress;
+    address[] public farmAddresses;
     mapping(address => Farm) public farms;
 
-    address[] public distributionCenterAddress;
+    address[] public distributionCenterAddresses;
     mapping(address => DistributionCenter) public distributionCenters;
 
-    address[] public retailerAddress;
+    address[] public retailerAddresses;
     mapping(address => Retailler) public retaillers;
 
-    address[] public consumerAddress;
+    address[] public consumerAddresses;
     mapping(address => Consumer) public consumers;
+
+    //CONTRACT OWNER & ADMIN
+    address public contractOwner;
+    address[] public adminAddresses;
 
     //=================================
     // CONSTRUCTOR
