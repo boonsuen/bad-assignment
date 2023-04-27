@@ -1,3 +1,4 @@
+import { DTraceProvider } from '@/context/Dtrace';
 import '@/styles/globals.css';
 import type { AppProps } from 'next/app';
 import { Inter } from 'next/font/google';
@@ -17,7 +18,9 @@ export default function App({ Component, pageProps }: AppProps) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <div className={`${inter.variable} font-sans antialiased h-full`}>
-        <Component {...pageProps} />
+        <DTraceProvider>
+          <Component {...pageProps} />
+        </DTraceProvider>
       </div>
     </>
   );
