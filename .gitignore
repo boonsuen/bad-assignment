@@ -51,7 +51,3 @@ coverage
 coverage.json
 typechain
 typechain-types
-
-# contract samples
-contracts/SupplyChain.sol
-contracts/Voting.sol
