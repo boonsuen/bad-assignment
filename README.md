@@ -15,14 +15,18 @@ npx hardhat test
 REPORT_GAS=true npx hardhat test
 ```
 
-For local ganache network:
+## Environment Variables
 
-1. Create a .env.local file in your project root folder.
-2. Insert local variables:
+First, Create a .env.local file in your project root folder.
 
 ```bash
+#For local ganache network:
 CONTRACT_ADDRESS = "[Insert contract address here]"
 OWNER_PRIVATE_KEY = "[Insert owner private key here]"
+
+#For IPFS:
+IPFS_PROJECT_ID = "[Insert IPFS project ID here]"
+IPFS_PROJECT_SECRET_KEY = "[Insert IPFS project secret key here]"
 ```
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
