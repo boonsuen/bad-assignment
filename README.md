@@ -1,3 +1,7 @@
+# Getting Started
+
+## Hardhat
+
 This is a hardhat project.
 
 ```shell
@@ -15,9 +19,9 @@ npx hardhat test
 REPORT_GAS=true npx hardhat test
 ```
 
-## Environment Variables
+## Environment (Local) Variables
 
-First, Create a .env.local file in your project root folder.
+First, create a `.env.local` file in your project root folder.
 
 ```bash
 #For local ganache network:
@@ -29,9 +33,9 @@ IPFS_PROJECT_ID = "[Insert IPFS project ID here]"
 IPFS_PROJECT_SECRET_KEY = "[Insert IPFS project secret key here]"
 ```
 
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## Next.js
 
-## Getting Started
+This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 First, run the development server:
 
