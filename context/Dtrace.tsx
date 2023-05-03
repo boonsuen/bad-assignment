@@ -6,7 +6,7 @@ import { create as ipfsHttpClient } from "ipfs-http-client";
 // //Smart Contract
 // //might move to constant.ts file
 // Smart Contract Address and ABI
-import dtrace from "./DTrace.json";
+import dtrace from "../artifacts/contracts/DTrace.sol/DTrace.json";
 const contractAddress = process.env.CONTRACT_ADDRESS;
 const contractABI = dtrace.abi;
 
