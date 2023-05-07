@@ -1,5 +1,6 @@
 import Layout, { pages } from '@/components/layout/Layout';
 import { DTraceContext } from '@/context/Dtrace';
+import { Rating } from '@/types';
 import { useCallback, useContext, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import Datepicker from 'react-tailwindcss-datepicker';
@@ -8,6 +9,7 @@ export default function AddDurianPage() {
   const [varietyCode, setVarietyCode] = useState('');
   const [farmId, setFarmId] = useState('');
   const [treeId, setTreeId] = useState('');
+  const [condition, setCondition] = useState<Rating>('Excellent');
   const [harvestedDate, setHarvestedDate] = useState({
     startDate: new Date(),
     endDate: new Date(),
@@ -18,6 +20,10 @@ export default function AddDurianPage() {
     ).padStart(2, '0')}`
   );
   const [fileUrl, setFileUrl] = useState<string>();
+
+  const handleConditionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setCondition(e.target.value as Rating);
+  };
 
   const handleHarvestedDateChange = (date: any) => {
     console.log('harvestedDate: ', date);
@@ -76,6 +82,7 @@ export default function AddDurianPage() {
                   required
                 />
               </div>
+
               <div>
                 <label
                   htmlFor="farm-id"
@@ -93,6 +100,7 @@ export default function AddDurianPage() {
                   required
                 />
               </div>
+
               <div>
                 <label
                   htmlFor="tree-id"
@@ -110,6 +118,28 @@ export default function AddDurianPage() {
                   required
                 />
               </div>
+
+              <div>
+                <label
+                  htmlFor="condition"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >
+                  Condition
+                </label>
+                <select
+                  id="condition"
+                  className="relative transition-all duration-300 py-2.5 px-4 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
+                  value={condition}
+                  onChange={handleConditionChange}
+                >
+                  <option value="Bad">Bad</option>
+                  <option value="Poor">Poor</option>
+                  <option value="Fair">Fair</option>
+                  <option value="Good">Good</option>
+                  <option value="Excellent">Excellent</option>
+                </select>
+              </div>
+
               <div>
                 <label
                   htmlFor="harvested-date"
@@ -124,6 +154,7 @@ export default function AddDurianPage() {
                   onChange={handleHarvestedDateChange}
                 />
               </div>
+
               <div>
                 <label
                   htmlFor="harvested-time"
@@ -140,6 +171,7 @@ export default function AddDurianPage() {
                   required
                 />
               </div>
+
               <div className="col-span-2">
                 <label
                   htmlFor="harvested-time"

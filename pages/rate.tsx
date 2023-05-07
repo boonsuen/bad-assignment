@@ -1,11 +1,22 @@
 import Layout, { pages } from '@/components/layout/Layout';
+import { Rating } from '@/types';
 import { useState } from 'react';
 
 export default function AddConsumerPage() {
   const [durianId, setDurianId] = useState('');
-  const [taste, setTaste] = useState<number>();
-  const [fragrance, setFragrance] = useState<number>();
-  const [creaminess, setCreaminess] = useState<number>();
+  const [taste, setTaste] = useState<Rating>('Excellent');
+  const [fragrance, setFragrance] = useState<Rating>('Excellent');
+  const [creaminess, setCreaminess] = useState<Rating>('Excellent');
+
+  const handleTasteChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setTaste(e.target.value as Rating);
+  };
+  const handleFragranceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFragrance(e.target.value as Rating);
+  };
+  const handleCreaminessChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setCreaminess(e.target.value as Rating);
+  };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -52,17 +63,18 @@ export default function AddConsumerPage() {
                 >
                   Taste
                 </label>
-                <input
-                  type="number"
+                <select
                   id="taste"
-                  value={taste || ''}
-                  onChange={(e) => setTaste(parseInt(e.target.value))}
                   className="relative transition-all duration-300 py-2.5 px-4 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
-                  placeholder="1-5"
-                  min={1}
-                  max={5}
-                  required
-                />
+                  value={taste}
+                  onChange={handleTasteChange}
+                >
+                  <option value="Bad">Bad</option>
+                  <option value="Poor">Poor</option>
+                  <option value="Fair">Fair</option>
+                  <option value="Good">Good</option>
+                  <option value="Excellent">Excellent</option>
+                </select>
               </div>
 
               <div className="row-start-3">
@@ -72,17 +84,18 @@ export default function AddConsumerPage() {
                 >
                   Fragrance
                 </label>
-                <input
-                  type="number"
+                <select
                   id="fragrance"
-                  value={fragrance || ''}
-                  onChange={(e) => setFragrance(parseInt(e.target.value))}
                   className="relative transition-all duration-300 py-2.5 px-4 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
-                  placeholder="1-5"
-                  min={1}
-                  max={5}
-                  required
-                />
+                  value={fragrance}
+                  onChange={handleFragranceChange}
+                >
+                  <option value="Bad">Bad</option>
+                  <option value="Poor">Poor</option>
+                  <option value="Fair">Fair</option>
+                  <option value="Good">Good</option>
+                  <option value="Excellent">Excellent</option>
+                </select>
               </div>
 
               <div className="row-start-4">
@@ -92,17 +105,18 @@ export default function AddConsumerPage() {
                 >
                   Creaminess
                 </label>
-                <input
-                  type="number"
+                <select
                   id="creaminess"
-                  value={creaminess || ''}
-                  onChange={(e) => setCreaminess(parseInt(e.target.value))}
                   className="relative transition-all duration-300 py-2.5 px-4 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
-                  placeholder="1-5"
-                  min={1}
-                  max={5}
-                  required
-                />
+                  value={creaminess}
+                  onChange={handleCreaminessChange}
+                >
+                  <option value="Bad">Bad</option>
+                  <option value="Poor">Poor</option>
+                  <option value="Fair">Fair</option>
+                  <option value="Good">Good</option>
+                  <option value="Excellent">Excellent</option>
+                </select>
               </div>
             </div>
             <button
