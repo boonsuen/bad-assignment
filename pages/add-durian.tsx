@@ -7,8 +7,8 @@ export default function AddDurianPage() {
   const [farmId, setFarmId] = useState('');
   const [treeId, setTreeId] = useState('');
   const [harvestedDate, setHarvestedDate] = useState({
-    startDate: null,
-    endDate: null,
+    startDate: new Date(),
+    endDate: new Date(),
   });
   const [harvestedTime, setHarvestedTime] = useState(
     new Date().toLocaleTimeString('en-US', { hour12: false })
