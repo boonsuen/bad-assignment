@@ -1,18 +1,35 @@
 import Layout, { pages } from '@/components/layout/Layout';
 import { useState } from 'react';
 import Datepicker from 'react-tailwindcss-datepicker';
-import { DateValueType } from 'react-tailwindcss-datepicker/dist/types';
 
 export default function AddDurianPage() {
-  const [value, setValue] = useState({
+  const [varietyCode, setVarietyCode] = useState('');
+  const [farmId, setFarmId] = useState('');
+  const [treeId, setTreeId] = useState('');
+  const [harvestedDate, setHarvestedDate] = useState({
     startDate: null,
     endDate: null,
   });
+  const [harvestedTime, setHarvestedTime] = useState(
+    new Date().toLocaleTimeString('en-US', { hour12: false })
+  );
 
-  const handleValueChange = (newValue: any) => {
-    console.log('newValue:', newValue);
-    setValue(newValue);
+  const handleHarvestedDateChange = (date: any) => {
+    console.log('harvestedDate: ', date);
+    setHarvestedDate(date);
   };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    console.log('Form submission date', {
+      varietyCode,
+      farmId,
+      treeId,
+      harvestedDate,
+      harvestedTime,
+    });
+  };
+
   return (
     // TODO: Current role will be dynamically determined and passed in
     <Layout currentPage="/add-durian" currentRole="farmer">
@@ -21,7 +38,7 @@ export default function AddDurianPage() {
           {pages['/add-durian'].title}
         </h1>
         <div>
-          <form>
+          <form onSubmit={handleSubmit}>
             <div className="grid gap-6 mb-6 md:grid-cols-2">
               <div>
                 <label
@@ -33,8 +50,10 @@ export default function AddDurianPage() {
                 <input
                   type="text"
                   id="variety-code"
+                  value={varietyCode}
+                  onChange={(e) => setVarietyCode(e.target.value)}
                   className="relative transition-all duration-300 py-2.5 pl-4 pr-14 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
-                  placeholder="D1"
+                  placeholder="e.g. D24"
                   required
                 />
               </div>
@@ -48,8 +67,10 @@ export default function AddDurianPage() {
                 <input
                   type="text"
                   id="farm-id"
+                  value={farmId}
+                  onChange={(e) => setFarmId(e.target.value)}
                   className="relative transition-all duration-300 py-2.5 pl-4 pr-14 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
-                  placeholder="F1"
+                  placeholder="e.g. 1"
                   required
                 />
               </div>
@@ -63,23 +84,42 @@ export default function AddDurianPage() {
                 <input
                   type="text"
                   id="tree-id"
+                  value={treeId}
+                  onChange={(e) => setTreeId(e.target.value)}
                   className="relative transition-all duration-300 py-2.5 pl-4 pr-14 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
-                  placeholder="T1"
+                  placeholder="e.g. 1"
                   required
                 />
               </div>
               <div>
                 <label
-                  htmlFor="distribution-date"
+                  htmlFor="harvested-date"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
-                  Distribution Date
+                  Harvested Date
                 </label>
-                <Datepicker              
+                <Datepicker
                   primaryColor="green"
                   asSingle={true}
-                  value={value}
-                  onChange={handleValueChange}
+                  value={harvestedDate}
+                  onChange={handleHarvestedDateChange}
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="harvested-time"
+                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >
+                  Harvested Time
+                </label>
+                <input
+                  type="time"
+                  step={1}
+                  id="harvested-time"
+                  value={harvestedTime}
+                  onChange={(e) => setHarvestedTime(e.target.value)}
+                  className="relative transition-all duration-300 py-2.5 px-4 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
+                  required
                 />
               </div>
             </div>
