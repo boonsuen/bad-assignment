@@ -10,7 +10,9 @@ export default function CatalogDurianPage() {
     endDate: new Date(),
   });
   const [arrivalTime, setArrivalTime] = useState(
-    new Date().toLocaleTimeString('en-US', { hour12: false })
+    `${String(new Date().getHours()).padStart(2, '0')}:${String(
+      new Date().getMinutes()
+    ).padStart(2, '0')}`
   );
   const [condition, setCondition] = useState<number>();
 
@@ -97,7 +99,6 @@ export default function CatalogDurianPage() {
                 </label>
                 <input
                   type="time"
-                  step={1}
                   id="harvested-time"
                   value={arrivalTime}
                   onChange={(e) => setArrivalTime(e.target.value)}
@@ -115,7 +116,7 @@ export default function CatalogDurianPage() {
                 <input
                   type="number"
                   id="condition"
-                  value={condition}
+                  value={condition || ''}
                   onChange={(e) => setCondition(parseInt(e.target.value))}
                   className="relative transition-all duration-300 py-2.5 px-4 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
                   placeholder="1-5"
