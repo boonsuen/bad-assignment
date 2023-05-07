@@ -322,7 +322,7 @@ contract DTrace {
     //=================================
 
     //ADD ADMIN
-    function addAdmin(address _adminAddress) public onlyOwner {
+    function addAdmin(address _adminAddress) public onlyOwner onlyAdmin {
         admins[_adminAddress] = true;
     }
 
