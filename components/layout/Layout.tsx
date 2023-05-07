@@ -45,11 +45,7 @@ export const pages: {
   '/sell': {
     title: 'Sell Durian',
     access: 'retailer',
-  },
-  '/add-consumer': {
-    title: 'Add Consumer',
-    access: 'retailer',
-  },
+  },  
   '/rate': {
     title: 'Rate Durian',
     access: 'consumer',
@@ -57,6 +53,10 @@ export const pages: {
   '/add-account': {
     title: 'Add Account',
     access: 'admin',
+  },
+  '/add-consumer': {
+    title: 'Add Consumer',
+    access: 'retailer',
   },
 };
 
