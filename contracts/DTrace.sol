@@ -316,6 +316,12 @@ contract DTrace {
         _;
     }
 
+    //validate time
+    modifier validateTime(uint256 _previousTime, uint256 _currentTime) {
+        require(_currentTime > _previousTime, "Invalid time");
+        _;
+    }
+
     //===================================
     // CHECK ACCOUNT TYPE
     //===================================
@@ -499,7 +505,7 @@ contract DTrace {
         uint256 _harvestedTime,
         string memory _durianImg,
         Rating _conditionFarm
-    ) public onlyFarm {
+    ) public onlyFarm validateTime(0, _harvestedTime) {
         DurianFarmDetails memory newDurianFarmDetails = DurianFarmDetails(
             _farmID,
             _treeID,
@@ -530,7 +536,15 @@ contract DTrace {
         uint256 _arrivalTimeDC,
         string memory _durianImg,
         Rating _conditionDC
-    ) public onlyDistributionCenter onlyHarvestedDurian(_durianID) {
+    )
+        public
+        onlyDistributionCenter
+        onlyHarvestedDurian(_durianID)
+        validateTime(
+            durians[_durianID].durianFarmDetails.harvestedTime,
+            _arrivalTimeDC
+        )
+    {
         DurianDCDetails memory newDurianDCDetails = DurianDCDetails(
             _distributionCenterID,
             _arrivalTimeDC,
@@ -557,7 +571,15 @@ contract DTrace {
         uint256 _arrivalTimeRT,
         string memory _durianImg,
         Rating _conditionRT
-    ) public onlyRetailer onlyArrivedDCDurian(_durianID) {
+    )
+        public
+        onlyRetailer
+        onlyArrivedDCDurian(_durianID)
+        validateTime(
+            durians[_durianID].durianDCDetails.arrivalTimeDC,
+            _arrivalTimeRT
+        )
+    {
         DurianRTDetails memory newDurianRTDetails = DurianRTDetails(
             _retailerID,
             _arrivalTimeRT,
@@ -582,7 +604,15 @@ contract DTrace {
         uint256 _durianID,
         uint256 _consumerID,
         uint256 _soldTime
-    ) public onlyRetailer onlyArrivedRTDurian(_durianID) {
+    )
+        public
+        onlyRetailer
+        onlyArrivedRTDurian(_durianID)
+        validateTime(
+            durians[_durianID].durianRTDetails.arrivalTimeRT,
+            _soldTime
+        )
+    {
         durians[_durianID].durianCSDetails.consumerID = _consumerID;
         durians[_durianID].durianCSDetails.soldTime = _soldTime;
         durians[_durianID].status = DurianStatus.Sold;
@@ -598,7 +628,15 @@ contract DTrace {
         Rating _taste,
         Rating _fragrance,
         Rating _creaminess
-    ) public onlyConsumer onlySoldDurian(_durianID) {
+    )
+        public
+        onlyConsumer
+        onlySoldDurian(_durianID)
+        validateTime(
+            durians[_durianID].durianCSDetails.soldTime,
+            block.timestamp
+        )
+    {
         durians[_durianID].durianCSDetails.durianImg = _durianImg;
         durians[_durianID].durianCSDetails.taste = _taste;
         durians[_durianID].durianCSDetails.fragrance = _fragrance;
