@@ -1,16 +1,21 @@
 import Layout, { pages } from '@/components/layout/Layout';
-import { useState } from 'react';
+import { DTraceContext } from '../context/Dtrace';
+import { useContext, useState } from 'react';
 
 export default function AddConsumerPage() {
   const [consumerAccountAddress, setConsumerAccountAddress] = useState('');
   const [consumerName, setConsumerName] = useState('');
 
+  const { addConsumer } =
+    useContext(DTraceContext);
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('Form submission date', {
-      consumerAccountAddress,
-      consumerName,
-    });
+    addConsumer(consumerAccountAddress, consumerName);
+    // console.log('Form submission date', {
+    //   consumerAccountAddress,
+    //   consumerName,
+    // });
   };
 
   return (
