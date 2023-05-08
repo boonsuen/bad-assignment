@@ -1,5 +1,8 @@
 import Layout, { pages } from '@/components/layout/Layout';
+import { fetchContract } from '@/context/Dtrace';
+import { ethers } from 'ethers';
 import { useState } from 'react';
+import Web3Modal from 'web3modal';
 
 type roles = 'ADMIN' | 'FARM' | 'DISTRIBUTION_CENTER' | 'RETAILER' | 'CONSUMER';
 
@@ -19,11 +22,32 @@ export default function AddAccountPage() {
     setAccountType(e.target.value as roles);
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('Form submission date', {
-      accountAddress,
-    });
+
+    const web3Modal = new Web3Modal();
+    const connection = await web3Modal.connect();
+    const provider = new ethers.providers.Web3Provider(connection);
+    const signer = provider.getSigner();
+    const contract = fetchContract(signer);
+
+    if (accountType === 'ADMIN') {
+      await contract.addAdmin(accountAddress);
+    } else if (accountType === 'FARM') {
+      await contract.addFarm(accountAddress, farmName, farmLocation);
+    } else if (accountType === 'RETAILER') {
+      await contract.addRetailer(
+        accountAddress,
+        retailerName,
+        retailerLocation
+      );
+    } else if (accountType === 'DISTRIBUTION_CENTER') {
+      await contract.addRetailer(
+        accountAddress,
+        retailerName,
+        retailerLocation
+      );
+    }
   };
 
   return (

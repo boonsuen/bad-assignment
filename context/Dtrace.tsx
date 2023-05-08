@@ -7,7 +7,7 @@ import { create as ipfsHttpClient } from 'ipfs-http-client';
 // //might move to constant.ts file
 // Smart Contract Address and ABI
 import dtrace from '../artifacts/contracts/DTrace.sol/DTrace.json';
-const contractAddress = process.env.CONTRACT_ADDRESS as string;
+const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as string;
 const contractABI = dtrace.abi;
 
 //IPFS
@@ -27,7 +27,7 @@ const client = ipfsHttpClient({
   },
 });
 
-const fetchContract = (signerOrProvider: any) => {
+export const fetchContract = (signerOrProvider: any) => {
   return new ethers.Contract(contractAddress, contractABI, signerOrProvider);
 };
 
@@ -38,6 +38,60 @@ interface DTraceData {
   isWalletConnected: boolean;
   currentAccount: string;
   error: string;
+  checkAccountType: (accountAddress: string) => Promise<string | null>;
+  addAdmin: (adminAddress: String) => Promise<void>;
+  addFarm: (
+    farmAddress: String,
+    farmName: String,
+    farmLocation: String
+  ) => Promise<void>;
+  addDistributionCenter: (
+    distributionCenterAddress: String,
+    distributionCenterName: String,
+    distributionCenterLocation: String
+  ) => Promise<void>;
+  addRetailer: (
+    retailerAddress: String,
+    retailerName: String,
+    retailerLocation: String
+  ) => Promise<void>;
+  addConsumer: (consumerAddress: String, consumerName: String) => Promise<void>;
+  checkTotalDurian: () => Promise<any>;
+  checkDurianDetails: any;
+  addDurian: (
+    farmID: number,
+    treeID: number,
+    varietyCode: String,
+    harvestedTime: number,
+    durianImg: String,
+    conditionFarm: number
+  ) => Promise<void>;
+  addDurianDCDetails: (
+    durianId: number,
+    distributionCenterID: number,
+    arrivalTimeDC: number,
+    durianImg: String,
+    conditionDC: number
+  ) => Promise<void>;
+  addDurianRTDetails: (
+    durianId: number,
+    retailerID: number,
+    arrivalTimeRT: number,
+    durianImg: String,
+    conditionRT: number
+  ) => Promise<void>;
+  sellDurian: (
+    durianId: number,
+    consumerID: number,
+    soldTime: number
+  ) => Promise<void>;
+  rateDurian: (
+    durianId: number,
+    durianImg: String,
+    taste: number,
+    fragrance: number,
+    creaminess: number
+  ) => Promise<void>;
 }
 
 type DTraceContextProviderProps = {
@@ -52,6 +106,19 @@ const defaultValue = {
   isWalletConnected: false,
   currentAccount: '',
   error: '',
+  checkAccountType: () => {},
+  addAdmin: () => {},
+  addFarm: () => {},
+  addDistributionCenter: () => {},
+  addRetailer: () => {},
+  addConsumer: () => {},
+  checkTotalDurian: () => {},
+  checkDurianDetails: () => {},
+  addDurian: () => {},
+  addDurianDCDetails: () => {},
+  addDurianRTDetails: () => {},
+  sellDurian: () => {},
+  rateDurian: () => {},
 } as unknown as DTraceData;
 
 export const DTraceContext = React.createContext(defaultValue);
@@ -62,12 +129,12 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
   const [currentAccount, setCurrentAccount] = useState('');
   const [error, setError] = useState('');
 
-  //CONNECTING METAMASK
+  // CONNECTING METAMASK
   const checkIfWalletIsConnected = async () => {
     console.log('check1');
     if (!window.ethereum) {
-       setError('Please install MetaMask first.')
-       return false;
+      setError('Please install MetaMask first.');
+      return false;
     }
     console.log('check2');
     const accounts = await window.ethereum.request({ method: 'eth_accounts' });
@@ -83,7 +150,7 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
     }
   };
 
-  //CONNECT WALLET
+  // CONNECT WALLET
   const connectWallet = async () => {
     console.log('connectWallet');
     if (!window.ethereum) return setError('Please install MetaMask first.');
@@ -111,30 +178,31 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
   };
 
   const connectSmartContract = async () => {
-    //CONNECTING SMART CONTRACT
+    // CONNECTING SMART CONTRACT
     const web3Modal = new Web3Modal();
     const connection = await web3Modal.connect();
     const provider = new ethers.providers.Web3Provider(connection);
     const signer = provider.getSigner();
     return fetchContract(signer);
-  }
+  };
 
   //check account type
-  const checkAccountType = async (accountAddress:String) => {
+  const checkAccountType = async (accountAddress: String) => {
     try {
       const contract = await connectSmartContract();
 
       const accountType = await contract.checkAccountType(accountAddress);
-      accountType.wait();
-      console.log(accountType);
+      // accountType.wait();
+      console.log('accountType', accountType);
       return accountType;
-    } catch(error) {
-      setError("Something went wrong in checking account type");
+    } catch (error) {
+      console.error(error);
+      setError('Something went wrong in checking account type');
     }
-  }
+  };
 
   //add-account.tsx
-  const addAdmin = async (adminAddress:String) => { 
+  const addAdmin = async (adminAddress: String) => {
     try {
       const contract = await connectSmartContract();
 
@@ -142,11 +210,15 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
       admin.wait();
       console.log(admin);
     } catch (error) {
-      setError("Something went wrong in adding admin");
+      setError('Something went wrong in adding admin');
     }
   };
 
-  const addFarm = async (farmAddress:String, farmName:String, farmLocation: String) => {
+  const addFarm = async (
+    farmAddress: String,
+    farmName: String,
+    farmLocation: String
+  ) => {
     try {
       const contract = await connectSmartContract();
 
@@ -154,46 +226,65 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
       farm.wait();
       console.log(farm);
     } catch (error) {
-      setError("Something went wrong in adding farm");
+      setError('Something went wrong in adding farm');
     }
-  }
+  };
 
-  const addDistributionCenter = async (distributionCenterAddress:String, distributionCenterName:String, distributionCenterLocation: String) => {
+  const addDistributionCenter = async (
+    distributionCenterAddress: String,
+    distributionCenterName: String,
+    distributionCenterLocation: String
+  ) => {
     try {
       const contract = await connectSmartContract();
 
-      const distributionCenter = await contract.addDistributionCenter(distributionCenterAddress, distributionCenterName, distributionCenterLocation);
+      const distributionCenter = await contract.addDistributionCenter(
+        distributionCenterAddress,
+        distributionCenterName,
+        distributionCenterLocation
+      );
       distributionCenter.wait();
       console.log(distributionCenter);
     } catch (error) {
-      setError("Something went wrong in adding distribution center");
+      setError('Something went wrong in adding distribution center');
     }
-  }
+  };
 
-  const addRetailer = async (retailerAddress:String, retailerName:String, retailerLocation: String) => {
+  const addRetailer = async (
+    retailerAddress: String,
+    retailerName: String,
+    retailerLocation: String
+  ) => {
     try {
       const contract = await connectSmartContract();
 
-      const retailer = await contract.addRetailer(retailerAddress, retailerName, retailerLocation);
+      const retailer = await contract.addRetailer(
+        retailerAddress,
+        retailerName,
+        retailerLocation
+      );
       retailer.wait();
       console.log(retailer);
     } catch (error) {
-      setError("Something went wrong in adding retailer");
+      setError('Something went wrong in adding retailer');
     }
-  }
+  };
 
   //add-account.tsx, add-consumer.tsx
-  const addConsumer = async (consumerAddress:String, consumerName:String) => {
+  const addConsumer = async (consumerAddress: String, consumerName: String) => {
     try {
       const contract = await connectSmartContract();
 
-      const consumer = await contract.addConsumer(consumerAddress, consumerName);
+      const consumer = await contract.addConsumer(
+        consumerAddress,
+        consumerName
+      );
       consumer.wait();
       console.log(consumer);
     } catch (error) {
-      setError("Something went wrong in adding consumer");
+      setError('Something went wrong in adding consumer');
     }
-  }
+  };
 
   //check.tsx
   const checkTotalDurian = async () => {
@@ -204,17 +295,17 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
       console.log(total);
       return total;
     } catch (error) {
-      setError("Something went wrong in checking total durian");
+      setError('Something went wrong in checking total durian');
     }
-  }
+  };
 
-  const checkDurianDetails = async (durianId:number) => {
+  const checkDurianDetails = async (durianId: number) => {
     try {
       const contract = await connectSmartContract();
 
       const status = await contract.checkDurianStatus(durianId);
       console.log(status);
-      
+
       switch (status) {
         case 0: {
           const farmDetails = await contract.checkDurianFarmDetails(durianId);
@@ -243,109 +334,144 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
           const DCDetails = await contract.checkDurianDCDetails(durianId);
           const RTDetails = await contract.checkDurianRTDetails(durianId);
           const soldDetails = await contract.checkDurianSoldDetails(durianId);
-          const ratingDetails = await contract.checkDurianRatingDetails(durianId);
-          return { farmDetails, DCDetails, RTDetails, soldDetails, ratingDetails };
+          const ratingDetails = await contract.checkDurianRatingDetails(
+            durianId
+          );
+          return {
+            farmDetails,
+            DCDetails,
+            RTDetails,
+            soldDetails,
+            ratingDetails,
+          };
         }
         default:
-          console.log("Durian not found");
+          console.log('Durian not found');
           break;
       }
-      
     } catch (error) {
-      setError("Something went wrong in checking durian details");
+      setError('Something went wrong in checking durian details');
     }
-  }
+  };
 
   //add-durian.tsx
   const addDurian = async (
-    farmID : number,
-    treeID : number,
-    varietyCode : String,
-    harvestedTime : number,
-    durianImg : String,
-    conditionFarm : number
+    farmID: number,
+    treeID: number,
+    varietyCode: String,
+    harvestedTime: number,
+    durianImg: String,
+    conditionFarm: number
   ) => {
     try {
       const contract = await connectSmartContract();
 
-      const durian = await contract.addDurian(farmID, treeID, varietyCode, harvestedTime, durianImg, conditionFarm);
+      const durian = await contract.addDurian(
+        farmID,
+        treeID,
+        varietyCode,
+        harvestedTime,
+        durianImg,
+        conditionFarm
+      );
       durian.wait();
       console.log(durian);
     } catch (error) {
-      setError("Something went wrong in adding durian");
+      setError('Something went wrong in adding durian');
     }
-  }
+  };
 
   //catalog.tsx
-  const addDurianDCDetails = async (durianId:number, distributionCenterID:number, arrivalTimeDC:number, durianImg:String, conditionDC:number) => {
+  const addDurianDCDetails = async (
+    durianId: number,
+    distributionCenterID: number,
+    arrivalTimeDC: number,
+    durianImg: String,
+    conditionDC: number
+  ) => {
     try {
       const contract = await connectSmartContract();
 
       const catalog = await contract.addDurianDCDetails(
-        durianId, 
-        distributionCenterID, 
-        arrivalTimeDC, 
-        durianImg, 
-        conditionDC);
+        durianId,
+        distributionCenterID,
+        arrivalTimeDC,
+        durianImg,
+        conditionDC
+      );
       catalog.wait();
       console.log(catalog);
     } catch (error) {
-      setError("Something went wrong in cataloging durian");
+      setError('Something went wrong in cataloging durian');
     }
-  }
+  };
 
   //stock-in.tsx
-  const addDurianRTDetails = async (durianId:number, retailerID:number, arrivalTimeRT:number, durianImg:String, conditionRT:number) => {
+  const addDurianRTDetails = async (
+    durianId: number,
+    retailerID: number,
+    arrivalTimeRT: number,
+    durianImg: String,
+    conditionRT: number
+  ) => {
     try {
       const contract = await connectSmartContract();
 
       const stockIn = await contract.addDurianRTDetails(
-        durianId, 
-        retailerID, 
-        arrivalTimeRT, 
-        durianImg, 
-        conditionRT);
+        durianId,
+        retailerID,
+        arrivalTimeRT,
+        durianImg,
+        conditionRT
+      );
       stockIn.wait();
       console.log(stockIn);
     } catch (error) {
-      setError("Something went wrong in stocking in durian");
+      setError('Something went wrong in stocking in durian');
     }
-  }
+  };
 
   //sell.tsx
-  const sellDurian = async (durianId:number, consumerID:number, soldTime:number) => {
+  const sellDurian = async (
+    durianId: number,
+    consumerID: number,
+    soldTime: number
+  ) => {
     try {
       const contract = await connectSmartContract();
 
-      const sell = await contract.sellDurian(
-        durianId, 
-        consumerID, 
-        soldTime);
+      const sell = await contract.sellDurian(durianId, consumerID, soldTime);
       sell.wait();
       console.log(sell);
     } catch (error) {
-      setError("Something went wrong in selling durian");
+      setError('Something went wrong in selling durian');
     }
-  }
+  };
 
   //rate.tsx
-  const rateDurian = async (durianId:number, durianImg:String, taste:number, fragrance:number, creaminess:number) => {
+  const rateDurian = async (
+    durianId: number,
+    durianImg: String,
+    taste: number,
+    fragrance: number,
+    creaminess: number
+  ) => {
     try {
       const contract = await connectSmartContract();
 
       const rate = await contract.rateDurian(
-        durianId, 
-        durianImg, 
-        taste, 
-        fragrance, 
-        creaminess);
+        durianId,
+        durianImg,
+        taste,
+        fragrance,
+        creaminess
+      );
       rate.wait();
       console.log(rate);
     } catch (error) {
-      setError("Something went wrong in rating durian");
+      setError('Something went wrong in rating durian');
     }
-  }
-
+  };
 
   return (
     <DTraceContext.Provider
@@ -356,6 +482,19 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
         connectWallet,
         isWalletConnected,
         uploadToIPFS,
+        checkAccountType,
+        addAdmin,
+        addFarm,
+        addDistributionCenter,
+        addRetailer,
+        addConsumer,
+        checkTotalDurian,
+        checkDurianDetails,
+        addDurian,
+        addDurianDCDetails,
+        addDurianRTDetails,
+        sellDurian,
+        rateDurian,
       }}
     >
       {children}

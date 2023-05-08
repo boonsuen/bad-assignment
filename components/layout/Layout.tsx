@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import { SidebarIcons } from '../svg/SidebarIcons.svg';
 import React from 'react';
+import { LogoSvg } from '../svg/Logo.svg';
 
-type roles =
+export type roles =
   | 'guest'
   | 'farmer'
   | 'distributionCenter'
@@ -102,8 +103,12 @@ const Layout: React.FC<LayoutProps> = ({
         aria-label="Sidebar"
       >
         <div className="h-full px-3 py-4 gap-[16px] overflow-y-auto bg-gray-50 dark:bg-gray-800 flex flex-col">
+          <div className="flex items-center px-2 mt-5 mb-4">
+            <LogoSvg />
+          </div>
           <ul className="space-y-2 font-medium">
             {Object.entries(pages).map(([path, { title, access }]) => {
+              if (currentRole !== access && path !== '/check') return null;
               return (
                 <li key={path}>
                   <Link
