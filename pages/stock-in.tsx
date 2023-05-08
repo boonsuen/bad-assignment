@@ -1,4 +1,5 @@
 import Layout, { pages } from '@/components/layout/Layout';
+import { Rating } from '@/types';
 import { useState } from 'react';
 import Datepicker from 'react-tailwindcss-datepicker';
 
@@ -14,11 +15,15 @@ export default function StockInDurianPage() {
       new Date().getMinutes()
     ).padStart(2, '0')}`
   );
-  const [condition, setCondition] = useState<number>();
+  const [condition, setCondition] = useState<Rating>('Excellent');
 
   const handleArrivalDateChange = (date: any) => {
     console.log('arrivalDate: ', date);
     setArrivalDate(date);
+  };
+
+  const handleConditionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setCondition(e.target.value as Rating);
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -107,17 +112,18 @@ export default function StockInDurianPage() {
                 >
                   Condition
                 </label>
-                <input
-                  type="number"
+                <select
                   id="condition"
-                  value={condition || ''}
-                  onChange={(e) => setCondition(parseInt(e.target.value))}
                   className="relative transition-all duration-300 py-2.5 px-4 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
-                  placeholder="1-5"
-                  min={1}
-                  max={5}
-                  required
-                />
+                  value={condition}
+                  onChange={handleConditionChange}
+                >
+                  <option value="Bad">Bad</option>
+                  <option value="Poor">Poor</option>
+                  <option value="Fair">Fair</option>
+                  <option value="Good">Good</option>
+                  <option value="Excellent">Excellent</option>
+                </select>
               </div>
             </div>
             <button

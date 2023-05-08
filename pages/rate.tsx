@@ -20,7 +20,7 @@ export default function AddConsumerPage() {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('Form submission date', {
+    console.log('Form submission data', {
       durianId,
       taste,
       fragrance,
