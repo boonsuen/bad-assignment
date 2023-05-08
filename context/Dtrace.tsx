@@ -2,6 +2,7 @@ import React, { useState, useContext, createContext, useEffect } from 'react';
 import Web3Modal from 'web3modal';
 import { Signer, ethers } from 'ethers';
 import { create as ipfsHttpClient } from 'ipfs-http-client';
+import { Rating } from '@/types';
 
 // //Smart Contract
 // //might move to constant.ts file
@@ -38,6 +39,7 @@ interface DTraceData {
   isWalletConnected: boolean;
   currentAccount: string;
   error: string;
+  checkRatingStatus: (rating: Rating) => Promise<number>
   checkAccountType: (accountAddress: string) => Promise<string | null>;
   addAdmin: (adminAddress: String) => Promise<void>;
   addFarm: (
@@ -103,6 +105,7 @@ const defaultValue = {
   checkIfWalletIsConnected: () => {},
   connectWallet: () => {},
   uploadToIPFS: () => {},
+  checkRatingStatus: () => {},
   isWalletConnected: false,
   currentAccount: '',
   error: '',
@@ -177,6 +180,32 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
       console.log(error);
       setError('Error uploading file to IPFS');
     }
+  };
+
+  const checkRatingStatus = async (rating: Rating) => {
+    let num: number = 0;
+    switch (rating) {
+      
+      case 'Excellent':
+        num = 4;
+        break;
+      case 'Good':
+        num = 3;
+        break;
+      case 'Fair':
+        num = 2;
+        break;
+      case 'Poor':
+        num = 1;
+        break;
+      case 'Bad':
+        num = 0;
+        break;
+      default:
+        console.log('Rating not found');
+        break;
+    }
+    return num;
   };
 
   const connectSmartContract = async () => {
@@ -311,25 +340,25 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
       switch (status) {
         case 0: {
           const farmDetails = await contract.checkDurianFarmDetails(durianId);
-          return { farmDetails };
+          return { status, farmDetails };
         }
         case 1: {
           const farmDetails = await contract.checkDurianFarmDetails(durianId);
           const DCDetails = await contract.checkDurianDCDetails(durianId);
-          return { farmDetails, DCDetails };
+          return { status, farmDetails, DCDetails };
         }
         case 2: {
           const farmDetails = await contract.checkDurianFarmDetails(durianId);
           const DCDetails = await contract.checkDurianDCDetails(durianId);
           const RTDetails = await contract.checkDurianRTDetails(durianId);
-          return { farmDetails, DCDetails, RTDetails };
+          return { status, farmDetails, DCDetails, RTDetails };
         }
         case 3: {
           const farmDetails = await contract.checkDurianFarmDetails(durianId);
           const DCDetails = await contract.checkDurianDCDetails(durianId);
           const RTDetails = await contract.checkDurianRTDetails(durianId);
           const soldDetails = await contract.checkDurianSoldDetails(durianId);
-          return { farmDetails, DCDetails, RTDetails, soldDetails };
+          return { status, farmDetails, DCDetails, RTDetails, soldDetails };
         }
         case 4: {
           const farmDetails = await contract.checkDurianFarmDetails(durianId);
@@ -340,6 +369,7 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
             durianId
           );
           return {
+            status, 
             farmDetails,
             DCDetails,
             RTDetails,
@@ -497,6 +527,7 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
         addDurianRTDetails,
         sellDurian,
         rateDurian,
+        checkRatingStatus,
       }}
     >
       {children}

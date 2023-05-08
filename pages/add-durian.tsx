@@ -14,6 +14,7 @@ export default function AddDurianPage() {
     checkIfWalletIsConnected,
     checkAccountType,
     addDurian,
+    checkRatingStatus,
   } = useContext(DTraceContext);
   const [role, setRole] = useState<roles | null>(null);
 
@@ -71,7 +72,7 @@ export default function AddDurianPage() {
     maxSize: 5000000,
   });
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!fileUrl) {
@@ -98,28 +99,7 @@ export default function AddDurianPage() {
 
     const unixHarvestedTime = getUnixTime(combinedDate);
 
-    let conditionFarm: number;
-
-    switch (condition) {
-      case 'Excellent':
-        conditionFarm = 4;
-        break;
-      case 'Good':
-        conditionFarm = 3;
-        break;
-      case 'Fair':
-        conditionFarm = 2;
-        break;
-      case 'Poor':
-        conditionFarm = 1;
-        break;
-      case 'Bad':
-        conditionFarm = 0;
-        break;
-      default:
-        conditionFarm = 0;
-        break;
-    }
+    const conditionFarm = await checkRatingStatus(condition);
 
     addDurian(
       farmId as number,

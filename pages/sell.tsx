@@ -2,10 +2,11 @@ import Layout, { pages, roles } from '@/components/layout/Layout';
 import { DTraceContext } from '../context/Dtrace';
 import { useContext, useEffect, useState } from 'react';
 import Datepicker from 'react-tailwindcss-datepicker';
+import { getUnixTime } from 'date-fns';
 
 export default function SellDurianPage() {
   // ---------------------------------------------------------------------//
-  const { currentAccount, checkIfWalletIsConnected, checkAccountType } =
+  const { currentAccount, checkIfWalletIsConnected, checkAccountType, sellDurian } =
     useContext(DTraceContext);
   const [role, setRole] = useState<roles | null>(null);
 
@@ -26,8 +27,8 @@ export default function SellDurianPage() {
   console.log('role', role);
   // ---------------------------------------------------------------------//
 
-  const [durianId, setDurianId] = useState('');
-  const [consumerId, setConsumerId] = useState('');
+  const [durianId, setDurianId] = useState<number>();
+  const [consumerId, setConsumerId] = useState<number>();
   const [soldDate, setSoldDate] = useState({
     startDate: new Date(),
     endDate: new Date(),
@@ -49,6 +50,18 @@ export default function SellDurianPage() {
       durianId,
       consumerId,
     });
+
+  const combinedDate = new Date(
+    soldDate.startDate.getFullYear(),
+    soldDate.startDate.getMonth(),
+    soldDate.startDate.getDate(),
+    parseInt(soldTime.split(':')[0], 10),
+    parseInt(soldTime.split(':')[1], 10)
+  );
+
+  const unixSoldTime = getUnixTime(combinedDate);
+
+  sellDurian(durianId as number, consumerId as number, unixSoldTime);
   };
 
   return (
@@ -77,10 +90,10 @@ export default function SellDurianPage() {
                   Durian ID
                 </label>
                 <input
-                  type="text"
+                  type="number"
                   id="durian-id"
                   value={durianId}
-                  onChange={(e) => setDurianId(e.target.value)}
+                  onChange={(e) => setDurianId(parseInt(e.target.value))}
                   className="relative transition-all duration-300 py-2.5 pl-4 pr-14 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
                   placeholder="e.g. 1"
                   required
@@ -95,10 +108,10 @@ export default function SellDurianPage() {
                   Consumer ID
                 </label>
                 <input
-                  type="text"
+                  type="number"
                   id="consumer-id"
                   value={consumerId}
-                  onChange={(e) => setConsumerId(e.target.value)}
+                  onChange={(e) => setConsumerId(parseInt(e.target.value))}
                   className="relative transition-all duration-300 py-2.5 pl-4 pr-14 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
                   placeholder="e.g. 1"
                   required

@@ -6,7 +6,7 @@ import { useDropzone } from 'react-dropzone';
 
 export default function AddConsumerPage() {
   // ---------------------------------------------------------------------//
-  const { currentAccount, checkIfWalletIsConnected, checkAccountType } =
+  const { currentAccount, checkIfWalletIsConnected, checkAccountType, rateDurian, checkRatingStatus } =
     useContext(DTraceContext);
   const [role, setRole] = useState<roles | null>(null);
 
@@ -27,7 +27,7 @@ export default function AddConsumerPage() {
   console.log('role', role);
   // ---------------------------------------------------------------------//
 
-  const [durianId, setDurianId] = useState('');
+  const [durianId, setDurianId] = useState<number>();
   const [taste, setTaste] = useState<Rating>('Excellent');
   const [fragrance, setFragrance] = useState<Rating>('Excellent');
   const [creaminess, setCreaminess] = useState<Rating>('Excellent');
@@ -56,7 +56,7 @@ export default function AddConsumerPage() {
     maxSize: 5000000,
   });
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!fileUrl) {
@@ -71,6 +71,18 @@ export default function AddConsumerPage() {
       creaminess,
       fileUrl,
     });
+
+    const tasteNum = await checkRatingStatus(taste);
+    const fragranceNum = await checkRatingStatus(fragrance);
+    const creaminessNum = await checkRatingStatus(creaminess);
+
+    rateDurian (
+      durianId as number,
+      fileUrl,
+      tasteNum,
+      fragranceNum,
+      creaminessNum
+    )
   };
 
   return (
@@ -99,10 +111,10 @@ export default function AddConsumerPage() {
                   Durian ID
                 </label>
                 <input
-                  type="text"
+                  type="number"
                   id="durian-id"
                   value={durianId}
-                  onChange={(e) => setDurianId(e.target.value)}
+                  onChange={(e) => setDurianId(parseInt(e.target.value))}
                   className="relative transition-all duration-300 py-2.5 pl-4 pr-14 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
                   placeholder="e.g. 1"
                   required

@@ -4,10 +4,11 @@ import { useCallback, useContext, useEffect, useState } from 'react';
 import { Rating } from '@/types';
 import { useDropzone } from 'react-dropzone';
 import Datepicker from 'react-tailwindcss-datepicker';
+import { getUnixTime } from 'date-fns';
 
 export default function StockInDurianPage() {
   // ---------------------------------------------------------------------//
-  const { currentAccount, checkIfWalletIsConnected, checkAccountType } =
+  const { currentAccount, checkIfWalletIsConnected, checkAccountType, addDurianRTDetails, checkRatingStatus } =
     useContext(DTraceContext);
   const [role, setRole] = useState<roles | null>(null);
 
@@ -28,8 +29,8 @@ export default function StockInDurianPage() {
   console.log('role', role);
   // ---------------------------------------------------------------------//
 
-  const [durianId, setDurianId] = useState('');
-  const [retailerId, setRetailerId] = useState('');
+  const [durianId, setDurianId] = useState<number>();
+  const [retailerId, setRetailerId] = useState<number>();
   const [arrivalDate, setArrivalDate] = useState({
     startDate: new Date(),
     endDate: new Date(),
@@ -64,7 +65,7 @@ export default function StockInDurianPage() {
     maxSize: 5000000,
   });
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!fileUrl) {
@@ -80,6 +81,26 @@ export default function StockInDurianPage() {
       condition,
       fileUrl,
     });
+
+    const combinedDate = new Date(
+      arrivalDate.startDate.getFullYear(),
+      arrivalDate.startDate.getMonth(),
+      arrivalDate.startDate.getDate(),
+      parseInt(arrivalTime.split(':')[0], 10),
+      parseInt(arrivalTime.split(':')[1], 10)
+    );
+
+    const unixArrivalTime = getUnixTime(combinedDate);
+
+    const conditionRT = await checkRatingStatus(condition);
+
+    addDurianRTDetails(
+      durianId as number,
+      retailerId as number,
+      unixArrivalTime,
+      fileUrl,
+      conditionRT
+    );
   };
 
   return (
@@ -108,10 +129,10 @@ export default function StockInDurianPage() {
                   Durian ID
                 </label>
                 <input
-                  type="text"
+                  type="number"
                   id="durian-id"
                   value={durianId}
-                  onChange={(e) => setDurianId(e.target.value)}
+                  onChange={(e) => setDurianId(parseInt(e.target.value))}
                   className="relative transition-all duration-300 py-2.5 pl-4 pr-14 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
                   placeholder="e.g. 1"
                   required
@@ -125,10 +146,10 @@ export default function StockInDurianPage() {
                   Retailer ID
                 </label>
                 <input
-                  type="text"
+                  type="number"
                   id="retailer-id"
                   value={retailerId}
-                  onChange={(e) => setRetailerId(e.target.value)}
+                  onChange={(e) => setRetailerId(parseInt(e.target.value))}
                   className="relative transition-all duration-300 py-2.5 pl-4 pr-14 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
                   placeholder="e.g. 1"
                   required
