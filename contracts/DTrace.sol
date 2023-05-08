@@ -207,6 +207,7 @@ contract DTrace {
 
     //CONTRACT OWNER & ADMIN
     address public contractOwner;
+    address[] public adminAddresses;
     mapping(address => bool) public admins;
 
     //=================================
@@ -315,13 +316,64 @@ contract DTrace {
         _;
     }
 
-    //=================================
-    // ADMIN FUNCTIONS
-    //=================================
+    //===================================
+    // CHECK ACCOUNT TYPE
+    //===================================
+    function checkAccountType(
+        address _accountAddress
+    ) public view returns (string memory) {
+        if (admins[_accountAddress] || _accountAddress == contractOwner) {
+            return "OwnerOrAdmin";
+        } else if (farms[_accountAddress].farmAddress == _accountAddress) {
+            return "Farm";
+        } else if (
+            distributionCenters[_accountAddress].distributionCenterAddress ==
+            _accountAddress
+        ) {
+            return "Distribution Center";
+        } else if (
+            retaillers[_accountAddress].retailerAddress == _accountAddress
+        ) {
+            return "Retailer";
+        } else if (
+            consumers[_accountAddress].consumerAddress == _accountAddress
+        ) {
+            return "Consumer";
+        } else {
+            return "Guest";
+        }
+    }
+
+    //===================================
+    // ADMIN & CONTRACT OWNER FUNCTIONS
+    //===================================
 
     //ADD ADMIN
     function addAdmin(address _adminAddress) public onlyOwnerOrAdmin {
         admins[_adminAddress] = true;
+        adminAddresses.push(_adminAddress);
+    }
+
+    //GET CONTRACT OWNER
+    function getContractOwner() public view returns (address) {
+        return contractOwner;
+    }
+
+    //GET ADMIN LIST
+    function getAdminList() public view returns (address[] memory) {
+        return adminAddresses;
+    }
+
+    //GET ADMIN TOTAL
+    function getAdminTotal() public view returns (uint256) {
+        return adminAddresses.length;
+    }
+
+    //GET ADMIN DATA
+    function getAdminData(
+        address _adminAddress
+    ) public view returns (address, bool) {
+        return (_adminAddress, admins[_adminAddress]);
     }
 
     //=================================
@@ -475,13 +527,13 @@ contract DTrace {
     function addDurianDCDetails(
         uint256 _durianID,
         uint256 _distributionCenterID,
-        uint256 _soldTime,
+        uint256 _arrivalTimeDC,
         string memory _durianImg,
         Rating _conditionDC
     ) public onlyDistributionCenter onlyHarvestedDurian(_durianID) {
         DurianDCDetails memory newDurianDCDetails = DurianDCDetails(
             _distributionCenterID,
-            _soldTime,
+            _arrivalTimeDC,
             _durianImg,
             _conditionDC
         );
@@ -490,7 +542,7 @@ contract DTrace {
 
         emit DurianDCDetailsCreated(
             _distributionCenterID,
-            _soldTime,
+            _arrivalTimeDC,
             _durianImg,
             _conditionDC
         );
@@ -502,13 +554,13 @@ contract DTrace {
     function addDurianRTDetails(
         uint256 _durianID,
         uint256 _retailerID,
-        uint256 _soldTime,
+        uint256 _arrivalTimeRT,
         string memory _durianImg,
         Rating _conditionRT
     ) public onlyRetailer onlyArrivedDCDurian(_durianID) {
         DurianRTDetails memory newDurianRTDetails = DurianRTDetails(
             _retailerID,
-            _soldTime,
+            _arrivalTimeRT,
             _durianImg,
             _conditionRT
         );
@@ -517,7 +569,7 @@ contract DTrace {
 
         emit DurianRTDetailsCreated(
             _retailerID,
-            _soldTime,
+            _arrivalTimeRT,
             _durianImg,
             _conditionRT
         );
