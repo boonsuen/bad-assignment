@@ -11,16 +11,15 @@ const contractAddress = process.env.CONTRACT_ADDRESS as string;
 const contractABI = dtrace.abi;
 
 //IPFS
-const ipfsProjectId = process.env.IPFS_PROJECT_ID;
-const ipfsProjectSecretKey = process.env.IPFS_PROJECT_SECRET_KEY;
+const ipfsProjectId = '2OzjVylKREoBrrmfOhppUk1Zdsc';
+const ipfsProjectSecretKey = '36e6243f205dc8e46aa645b89f56862e';
 
 const authorization =
   'Basic ' + btoa(ipfsProjectId + ':' + ipfsProjectSecretKey);
-const subdomain = process.env.IPFS_SUBDOMAIN;
+const subdomain = 'https://dtrace.infura-ipfs.io';
 
 const client = ipfsHttpClient({
   host: 'infura-ipfs.io',
-  // port: "5001",
   port: 5001,
   protocol: 'https',
   headers: {
@@ -100,8 +99,13 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
       const added = await client.add({ content: file });
       const url = `${subdomain}/ipfs/${added.path}`;
 
+      console.log(process.env.IPFS_PROJECT_ID);
+      console.log(process.env.IPFS_PROJECT_SECRET_KEY);
+      console.log(process.env.IPFS_SUBDOMAIN);
+
       return url;
     } catch (error) {
+      console.log(error);
       setError('Error uploading file to IPFS');
     }
   };

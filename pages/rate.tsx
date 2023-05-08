@@ -1,12 +1,15 @@
 import Layout, { pages } from '@/components/layout/Layout';
+import { DTraceContext } from '@/context/Dtrace';
 import { Rating } from '@/types';
-import { useState } from 'react';
+import { useCallback, useContext, useState } from 'react';
+import { useDropzone } from 'react-dropzone';
 
 export default function AddConsumerPage() {
   const [durianId, setDurianId] = useState('');
   const [taste, setTaste] = useState<Rating>('Excellent');
   const [fragrance, setFragrance] = useState<Rating>('Excellent');
   const [creaminess, setCreaminess] = useState<Rating>('Excellent');
+  const [fileUrl, setFileUrl] = useState<string>();
 
   const handleTasteChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setTaste(e.target.value as Rating);
@@ -18,13 +21,33 @@ export default function AddConsumerPage() {
     setCreaminess(e.target.value as Rating);
   };
 
+  const { uploadToIPFS } = useContext(DTraceContext);
+
+  const onDrop = useCallback(async (acceptedFiles: any[]) => {
+    const url = await uploadToIPFS(acceptedFiles[0]);
+    setFileUrl(url);
+  }, []);
+
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop,
+    accept: { 'image/*': [] },
+    maxSize: 5000000,
+  });
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!fileUrl) {
+      alert('Please upload an image of the durian');
+      return;
+    }
+    
     console.log('Form submission data', {
       durianId,
       taste,
       fragrance,
       creaminess,
+      fileUrl,
     });
   };
 
@@ -117,6 +140,60 @@ export default function AddConsumerPage() {
                   <option value="Good">Good</option>
                   <option value="Excellent">Excellent</option>
                 </select>
+              </div>
+
+              <div className="col-span-2">
+              <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  Durian Image
+                </label>
+                <div
+                  className="flex cursor-pointer justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md"
+                  {...getRootProps()}
+                >
+                  <input {...getInputProps()} />
+                  <div>
+                    <div>
+                      {fileUrl ? (
+                        <img
+                          src={fileUrl}
+                          className="mx-auto mb-3 h-[100px] w-[100px] object-contain border text-gray-400"
+                        />
+                      ) : (
+                        <svg
+                          className="mx-auto h-12 w-12 text-gray-400"
+                          stroke="currentColor"
+                          fill="none"
+                          viewBox="0 0 48 48"
+                          aria-hidden="true"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M20 12h-4a8 8 0 00-8 8v12a8 8 0 008 8h16a8 8 0 008-8V20a8 8 0 00-8-8h-4"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 20h4l2 2 4-4 4 4 2-2h4"
+                          />
+                        </svg>
+                      )}
+                    </div>
+                    <div className="text-center space-y-1">
+                      <p className="text-sm text-gray-600">
+                        <span className="rounded-md font-medium text-green-600 hover:text-green-500">
+                          Upload a file
+                        </span>{' '}
+                        or drag and drop
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        JPG, PNG, GIF, WEBM up to 10MB
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
             <button

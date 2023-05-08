@@ -45,7 +45,13 @@ export default function AddDurianPage() {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('Form submission date', {
+
+    if (!fileUrl) {
+      alert('Please upload an image of the durian');
+      return;
+    }
+
+    console.log('Form submission data', {
       varietyCode,
       farmId,
       treeId,
@@ -173,87 +179,55 @@ export default function AddDurianPage() {
               </div>
 
               <div className="col-span-2">
-                <label
-                  htmlFor="harvested-time"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >
+                <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                   Durian Image
                 </label>
-                <div className="flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                  <div className="space-y-1 text-center">
-                    <img src={fileUrl} alt="Voter Image" />
-                    <svg
-                      className="mx-auto h-12 w-12 text-gray-400"
-                      stroke="currentColor"
-                      fill="none"
-                      viewBox="0 0 48 48"
-                      aria-hidden="true"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M20 12h-4a8 8 0 00-8 8v12a8 8 0 008 8h16a8 8 0 008-8V20a8 8 0 00-8-8h-4"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 20h4l2 2 4-4 4 4 2-2h4"
-                      />
-                    </svg>
-                    <div className="flex text-sm text-gray-600">
-                      <label
-                        htmlFor="file-upload"
-                        className="relative cursor-pointer bg-white rounded-md font-medium text-green-600 hover:text-green-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-green-500"
-                      >
-                        <span>Upload a file</span>
-                        <input
-                          id="file-upload"
-                          name="file-upload"
-                          type="file"
-                          className="sr-only"
-                        />
-                      </label>
-                      <p className="pl-1">or drag and drop</p>
-                    </div>
-                    <p className="text-xs text-gray-500">
-                      PNG, JPG, GIF up to 10MB
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="col-span-2">
-                <div {...getRootProps()}>
+                <div
+                  className="flex cursor-pointer justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md"
+                  {...getRootProps()}
+                >
                   <input {...getInputProps()} />
-
                   <div>
-                    <p>Upload File: JPG, PNG, GIF, WEBM Max 10MB</p>
                     <div>
-                      <svg
-                        className="mx-auto h-12 w-12 text-gray-400"
-                        stroke="currentColor"
-                        fill="none"
-                        viewBox="0 0 48 48"
-                        aria-hidden="true"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M20 12h-4a8 8 0 00-8 8v12a8 8 0 008 8h16a8 8 0 008-8V20a8 8 0 00-8-8h-4"
+                      {fileUrl ? (
+                        <img
+                          src={fileUrl}
+                          className="mx-auto mb-3 h-[100px] w-[100px] object-contain border text-gray-400"
                         />
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 20h4l2 2 4-4 4 4 2-2h4"
-                        />
-                      </svg>
+                      ) : (
+                        <svg
+                          className="mx-auto h-12 w-12 text-gray-400"
+                          stroke="currentColor"
+                          fill="none"
+                          viewBox="0 0 48 48"
+                          aria-hidden="true"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M20 12h-4a8 8 0 00-8 8v12a8 8 0 008 8h16a8 8 0 008-8V20a8 8 0 00-8-8h-4"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 20h4l2 2 4-4 4 4 2-2h4"
+                          />
+                        </svg>
+                      )}
                     </div>
-                    <p>Drag & Drop File</p>
-                    <p>or Browse Media on your device</p>
+                    <div className="text-center space-y-1">
+                      <p className="text-sm text-gray-600">
+                        <span className="rounded-md font-medium text-green-600 hover:text-green-500">
+                          Upload a file
+                        </span>{' '}
+                        or drag and drop
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        JPG, PNG, GIF, WEBM up to 10MB
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
