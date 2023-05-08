@@ -16,11 +16,11 @@ contract DTrace {
     //=================================
 
     enum DurianStatus {
-        Pending,
         Harvested,
         ArrivedDC,
         ArrivedRT,
-        Sold
+        Sold,
+        Rated
     }
     enum Rating {
         Bad,
@@ -38,7 +38,7 @@ contract DTrace {
     struct Durian {
         //DURIAN DETAILS
         uint256 durianID;
-        DurianStatus status; //default = "Harvested"
+        DurianStatus status;
         DurianFarmDetails durianFarmDetails;
         DurianDCDetails durianDCDetails;
         DurianRTDetails durianRTDetails;
@@ -46,6 +46,7 @@ contract DTrace {
     }
 
     event DurianCreated(uint256 durianID);
+    event DurianStatusUpdated(DurianStatus status);
 
     //FARM DETAILS IN DURIAN STRUCT
     struct DurianFarmDetails {
@@ -55,7 +56,7 @@ contract DTrace {
         string varietyCode;
         //epoch time
         uint256 harvestedTime; //button clicked time
-        uint256 durianImg; //ipfs url
+        string durianImg; //ipfs url
         Rating conditionFarm;
     }
 
@@ -64,7 +65,7 @@ contract DTrace {
         uint256 treeID,
         string varietyCode,
         uint256 harvestedTime,
-        uint256 durianImg,
+        string durianImg,
         Rating conditionFarm
     );
 
@@ -72,14 +73,14 @@ contract DTrace {
     struct DurianDCDetails {
         uint256 distributionCenterID;
         uint256 arrivalTimeDC;
-        uint256 durianImg;
+        string durianImg;
         Rating conditionDC;
     }
 
     event DurianDCDetailsCreated(
         uint256 distributionCenterID,
         uint256 arrivalTimeDC,
-        uint256 durianImg,
+        string durianImg,
         Rating conditionDC
     );
 
@@ -87,14 +88,14 @@ contract DTrace {
     struct DurianRTDetails {
         uint256 retailerID;
         uint256 arrivalTimeRT;
-        uint256 durianImg;
+        string durianImg;
         Rating conditionRT;
     }
 
     event DurianRTDetailsCreated(
         uint256 retailerID,
         uint256 arrivalTimeRT,
-        uint256 durianImg,
+        string durianImg,
         Rating conditionRT
     );
 
@@ -102,16 +103,16 @@ contract DTrace {
     struct DurianCSDetails {
         uint256 consumerID;
         uint256 soldTime;
-        uint256 durianImg;
+        string durianImg;
         Rating taste;
         Rating fragrance;
         Rating creaminess;
     }
 
-    event DurianCSDetailsCreated(
-        uint256 consumerID,
-        uint256 soldTime,
-        uint256 durianImg,
+    event DurianSold(uint256 consumerID, uint256 soldTime);
+
+    event DurianRated(
+        string durianImg,
         Rating taste,
         Rating fragrance,
         Rating creaminess
@@ -220,16 +221,23 @@ contract DTrace {
     //=================================
 
     //===ROLES===
-
-    //only contract owner
-    modifier onlyOwner() {
-        require(msg.sender == contractOwner, "Caller is not contract owner");
+    //only contract owner or admin
+    modifier onlyOwnerOrAdmin() {
+        require(
+            admins[msg.sender] || msg.sender == contractOwner,
+            "Caller is not an admin"
+        );
         _;
     }
 
-    //only admin
-    modifier onlyAdmin() {
-        require(admins[msg.sender], "Caller is not an admin");
+    //only contract owner, admin, or retailer
+    modifier onlyOwnerOrAdminOrRetailer() {
+        require(
+            admins[msg.sender] ||
+                msg.sender == contractOwner ||
+                retaillers[msg.sender].retailerAddress == msg.sender,
+            "Caller is not an admin or retailer"
+        );
         _;
     }
 
@@ -271,16 +279,6 @@ contract DTrace {
     }
 
     //===DURIAN STATUS===
-
-    //only pending durian
-    modifier onlyPendingDurian(uint256 _durianID) {
-        require(
-            durians[_durianID].status == DurianStatus.Pending,
-            "Durian is not pending"
-        );
-        _;
-    }
-
     //only harvested durian
     modifier onlyHarvestedDurian(uint256 _durianID) {
         require(
@@ -322,7 +320,7 @@ contract DTrace {
     //=================================
 
     //ADD ADMIN
-    function addAdmin(address _adminAddress) public onlyOwner onlyAdmin {
+    function addAdmin(address _adminAddress) public onlyOwnerOrAdmin {
         admins[_adminAddress] = true;
     }
 
@@ -349,8 +347,14 @@ contract DTrace {
     )
         public
         view
-        onlyHarvestedDurian(_durianID)
-        returns (uint256, uint256, string memory, uint256, uint256, Rating)
+        returns (
+            uint256,
+            uint256,
+            string memory,
+            uint256,
+            string memory,
+            Rating
+        )
     {
         return (
             durians[_durianID].durianFarmDetails.farmID,
@@ -365,12 +369,7 @@ contract DTrace {
     //CHECK DURIAN DC DETAILS
     function checkDurianDCDetails(
         uint256 _durianID
-    )
-        public
-        view
-        onlyArrivedDCDurian(_durianID)
-        returns (uint256, uint256, uint256, Rating)
-    {
+    ) public view returns (uint256, uint256, string memory, Rating) {
         return (
             durians[_durianID].durianDCDetails.distributionCenterID,
             durians[_durianID].durianDCDetails.arrivalTimeDC,
@@ -382,12 +381,7 @@ contract DTrace {
     //CHECK DURIAN RT DETAILS
     function checkDurianRTDetails(
         uint256 _durianID
-    )
-        public
-        view
-        onlyArrivedRTDurian(_durianID)
-        returns (uint256, uint256, uint256, Rating)
-    {
+    ) public view returns (uint256, uint256, string memory, Rating) {
         return (
             durians[_durianID].durianRTDetails.retailerID,
             durians[_durianID].durianRTDetails.arrivalTimeRT,
@@ -397,17 +391,19 @@ contract DTrace {
     }
 
     //CHECK DURIAN CONSUMER DETAILS
-    function checkDurianCSDetails(
+    function checkDurianSoldDetails(
         uint256 _durianID
-    )
-        public
-        view
-        onlySoldDurian(_durianID)
-        returns (uint256, uint256, uint256, Rating, Rating, Rating)
-    {
+    ) public view returns (uint256, uint256) {
         return (
             durians[_durianID].durianCSDetails.consumerID,
-            durians[_durianID].durianCSDetails.soldTime,
+            durians[_durianID].durianCSDetails.soldTime
+        );
+    }
+
+    function checkDurianRatingDetails(
+        uint256 _durianID
+    ) public view returns (string memory, Rating, Rating, Rating) {
+        return (
             durians[_durianID].durianCSDetails.durianImg,
             durians[_durianID].durianCSDetails.taste,
             durians[_durianID].durianCSDetails.fragrance,
@@ -422,13 +418,12 @@ contract DTrace {
         uint256 _treeID,
         string memory _varietyCode,
         uint256 _harvestedTime,
-        uint256 _durianImg,
+        string memory _durianImg,
         Rating _conditionFarm
     ) public onlyFarm {
         durianNum.increment();
         uint256 _durianID = durianNum.current();
         durians[_durianID].durianID = _durianID;
-        emit DurianCreated(_durianID);
 
         //ADD DURIANFARMDETAILS
         addDurianFarmDetails(
@@ -440,6 +435,7 @@ contract DTrace {
             _durianImg,
             _conditionFarm
         );
+        emit DurianCreated(durians[_durianID].durianID);
     }
 
     //ADD DURIANFARMDETAILS (onlyFarm)
@@ -449,9 +445,9 @@ contract DTrace {
         uint256 _treeID,
         string memory _varietyCode,
         uint256 _harvestedTime,
-        uint256 _durianImg,
+        string memory _durianImg,
         Rating _conditionFarm
-    ) public onlyFarm onlyPendingDurian(_durianID) {
+    ) public onlyFarm {
         DurianFarmDetails memory newDurianFarmDetails = DurianFarmDetails(
             _farmID,
             _treeID,
@@ -461,6 +457,7 @@ contract DTrace {
             _conditionFarm
         );
         durians[_durianID].durianFarmDetails = newDurianFarmDetails;
+        durians[_durianID].status = DurianStatus.Harvested;
 
         emit DurianFarmDetailsCreated(
             _farmID,
@@ -470,6 +467,8 @@ contract DTrace {
             _durianImg,
             _conditionFarm
         );
+
+        emit DurianStatusUpdated(durians[_durianID].status);
     }
 
     //ADD DURIANDCDETAILS (onlyDistributionCenter)
@@ -477,9 +476,9 @@ contract DTrace {
         uint256 _durianID,
         uint256 _distributionCenterID,
         uint256 _soldTime,
-        uint256 _durianImg,
+        string memory _durianImg,
         Rating _conditionDC
-    ) public onlyDistributionCenter onlyArrivedDCDurian(_durianID) {
+    ) public onlyDistributionCenter onlyHarvestedDurian(_durianID) {
         DurianDCDetails memory newDurianDCDetails = DurianDCDetails(
             _distributionCenterID,
             _soldTime,
@@ -487,6 +486,7 @@ contract DTrace {
             _conditionDC
         );
         durians[_durianID].durianDCDetails = newDurianDCDetails;
+        durians[_durianID].status = DurianStatus.ArrivedDC;
 
         emit DurianDCDetailsCreated(
             _distributionCenterID,
@@ -494,6 +494,8 @@ contract DTrace {
             _durianImg,
             _conditionDC
         );
+
+        emit DurianStatusUpdated(durians[_durianID].status);
     }
 
     //ADD DURIANRTDETAILS (onlyRetailer)
@@ -501,9 +503,9 @@ contract DTrace {
         uint256 _durianID,
         uint256 _retailerID,
         uint256 _soldTime,
-        uint256 _durianImg,
+        string memory _durianImg,
         Rating _conditionRT
-    ) public onlyRetailer onlyArrivedRTDurian(_durianID) {
+    ) public onlyRetailer onlyArrivedDCDurian(_durianID) {
         DurianRTDetails memory newDurianRTDetails = DurianRTDetails(
             _retailerID,
             _soldTime,
@@ -511,6 +513,7 @@ contract DTrace {
             _conditionRT
         );
         durians[_durianID].durianRTDetails = newDurianRTDetails;
+        durians[_durianID].status = DurianStatus.ArrivedRT;
 
         emit DurianRTDetailsCreated(
             _retailerID,
@@ -518,48 +521,53 @@ contract DTrace {
             _durianImg,
             _conditionRT
         );
+
+        emit DurianStatusUpdated(durians[_durianID].status);
     }
 
-    //ADD DURIANCSDETAILS (onlyConsumer)
-    function addDurianCSDetails(
+    //SELL DURIAN (onlyRetailer)
+    function sellDurian(
         uint256 _durianID,
         uint256 _consumerID,
-        uint256 _soldTime,
-        uint256 _durianImg,
+        uint256 _soldTime
+    ) public onlyRetailer onlyArrivedRTDurian(_durianID) {
+        durians[_durianID].durianCSDetails.consumerID = _consumerID;
+        durians[_durianID].durianCSDetails.soldTime = _soldTime;
+        durians[_durianID].status = DurianStatus.Sold;
+
+        emit DurianSold(_consumerID, _soldTime);
+        emit DurianStatusUpdated(durians[_durianID].status);
+    }
+
+    //RATE DURIAN (onlyConsumer)
+    function rateDurian(
+        uint256 _durianID,
+        string memory _durianImg,
         Rating _taste,
         Rating _fragrance,
         Rating _creaminess
     ) public onlyConsumer onlySoldDurian(_durianID) {
-        DurianCSDetails memory newDurianCSDetails = DurianCSDetails(
-            _consumerID,
-            _soldTime,
-            _durianImg,
-            _taste,
-            _fragrance,
-            _creaminess
-        );
-        durians[_durianID].durianCSDetails = newDurianCSDetails;
+        durians[_durianID].durianCSDetails.durianImg = _durianImg;
+        durians[_durianID].durianCSDetails.taste = _taste;
+        durians[_durianID].durianCSDetails.fragrance = _fragrance;
+        durians[_durianID].durianCSDetails.creaminess = _creaminess;
+        durians[_durianID].status = DurianStatus.Rated;
 
-        emit DurianCSDetailsCreated(
-            _consumerID,
-            _soldTime,
-            _durianImg,
-            _taste,
-            _fragrance,
-            _creaminess
-        );
+        emit DurianRated(_durianImg, _taste, _fragrance, _creaminess);
+
+        emit DurianStatusUpdated(durians[_durianID].status);
     }
 
     //=================================
     // FARM FUNCTIONS
     //=================================
 
-    //ADD FARM (onlyAdmin and onlyOwner)
+    //ADD FARM (onlyOwnerOrAdmin)
     function addFarm(
         address _farmAddress,
         string memory _farmName,
         string memory _farmLocation
-    ) public onlyAdmin onlyOwner {
+    ) public onlyOwnerOrAdmin {
         farmNum.increment();
         uint256 _farmID = farmNum.current();
 
@@ -602,12 +610,12 @@ contract DTrace {
     // DISTRIBUTION CENTER FUNCTIONS
     //=================================
 
-    //ADD DISTRIBUTION CENTER (onlyAdmin and onlyOwner)
+    //ADD DISTRIBUTION CENTER (onlyOwnerOrAdmin)
     function addDistributionCenter(
         address _distributionCenterAddress,
         string memory _distributionCenterName,
         string memory _distributionCenterLocation
-    ) public onlyAdmin onlyOwner {
+    ) public onlyOwnerOrAdmin {
         distributionCenterNum.increment();
         uint256 _distributionCenterID = distributionCenterNum.current();
 
@@ -661,12 +669,12 @@ contract DTrace {
     // RETAILER FUNCTIONS
     //=================================
 
-    //ADD RETAILER (onlyAdmin and onlyOwner)
+    //ADD RETAILER (onlyOwnerOrAdmin)
     function addRetailer(
         address _retailerAddress,
         string memory _retailerName,
         string memory _retailerLocation
-    ) public onlyAdmin onlyOwner {
+    ) public onlyOwnerOrAdmin {
         retailerNum.increment();
         uint256 _retailerID = retailerNum.current();
 
@@ -714,11 +722,11 @@ contract DTrace {
     // CONSUMER FUNCTIONS
     //=================================
 
-    //ADD CONSUMER (onlyAdmin, onlyOwner, and onlyRetailer)
+    //ADD CONSUMER (onlyOwnerOrAdminOrRetailer)
     function addConsumer(
         address _consumerAddress,
         string memory _consumerName
-    ) public onlyAdmin onlyOwner onlyRetailer {
+    ) public onlyOwnerOrAdminOrRetailer {
         consumerNum.increment();
         uint256 _consumerID = consumerNum.current();
 
