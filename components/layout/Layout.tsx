@@ -1,18 +1,19 @@
 import Link from 'next/link';
 import { SidebarIcons } from '../svg/SidebarIcons.svg';
-import React from 'react';
+import React, { useContext, useEffect } from 'react';
 import { LogoSvg } from '../svg/Logo.svg';
+import { DTraceContext } from '@/context/Dtrace';
 
 export type roles =
   | 'guest'
-  | 'farmer'
+  | 'farm'
   | 'distributionCenter'
   | 'retailer'
   | 'consumer'
   | 'admin';
 
 export type paths =
-  | '/check'
+  | '/'
   | '/add-durian'
   | '/catalog'
   | '/stock-in'
@@ -27,13 +28,13 @@ export const pages: {
     access: roles;
   };
 } = {
-  '/check': {
+  '/': {
     title: 'Check Durian',
     access: 'guest',
   },
   '/add-durian': {
     title: 'Add Durian',
-    access: 'farmer',
+    access: 'farm',
   },
   '/catalog': {
     title: 'Catalog Durian',
@@ -46,7 +47,7 @@ export const pages: {
   '/sell': {
     title: 'Sell Durian',
     access: 'retailer',
-  },  
+  },
   '/rate': {
     title: 'Rate Durian',
     access: 'consumer',
@@ -72,6 +73,20 @@ const Layout: React.FC<LayoutProps> = ({
   currentPage,
   currentRole,
 }) => {
+  const { connectWallet, checkIfWalletIsConnected } = useContext(DTraceContext);
+
+  const handleConnectMetamask = () => {
+    connectWallet();
+  };
+
+  useEffect(() => {
+    window.ethereum.on('accountsChanged', async () => {
+      console.log('Account changed');
+      
+      checkIfWalletIsConnected();
+    });
+  }, []);
+
   return (
     <>
       <button
@@ -108,7 +123,7 @@ const Layout: React.FC<LayoutProps> = ({
           </div>
           <ul className="space-y-2 font-medium">
             {Object.entries(pages).map(([path, { title, access }]) => {
-              if (currentRole !== access && path !== '/check') return null;
+              if (currentRole !== access && path !== '/') return null;
               return (
                 <li key={path}>
                   <Link
@@ -131,11 +146,17 @@ const Layout: React.FC<LayoutProps> = ({
               );
             })}
           </ul>
-          {currentRole !== 'guest' && (
-            <button className="font-medium mt-auto flex items-center justify-center text-primary w-full h-12 min-h-[48px] rounded border border-primary">
-              Log Out
-            </button>
-          )}
+          <div className="mt-auto">
+            {currentRole === 'guest'
+              ? 'You are a GUEST'
+              : `Connected as ${currentRole.toUpperCase()}`}
+          </div>
+          <button
+            onClick={handleConnectMetamask}
+            className="font-medium flex items-center justify-center text-primary w-full h-12 min-h-[48px] rounded border border-primary"
+          >
+            Connect MetaMask
+          </button>
         </div>
       </aside>
       {children}

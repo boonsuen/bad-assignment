@@ -145,6 +145,8 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
       setIsWalletConnected(true);
       return true;
     } else {
+      setCurrentAccount('');
+      setIsWalletConnected(false);
       setError('Connect with Metamask first.');
       return false;
     }

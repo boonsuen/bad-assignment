@@ -7,7 +7,7 @@ export const SidebarIcons = ({
   isActive: boolean;
   path: paths;
 }) => {
-  if (path === '/check') {
+  if (path === '/') {
     return <CheckSvg isActive={isActive} />;
   } else if (path === '/add-durian') {
     return <AddDurianSvg isActive={isActive} />;
