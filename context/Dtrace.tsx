@@ -1,4 +1,4 @@
-import React, { useState, useContext, createContext } from 'react';
+import React, { useState, useContext, createContext, useEffect } from 'react';
 import Web3Modal from 'web3modal';
 import { Signer, ethers } from 'ethers';
 import { create as ipfsHttpClient } from 'ipfs-http-client';
@@ -32,8 +32,7 @@ const fetchContract = (signerOrProvider: any) => {
 };
 
 interface DTraceData {
-  // Define the properties of your trace data here
-  checkIfWalletIsConnected: () => Promise<void>;
+  checkIfWalletIsConnected: () => Promise<boolean>;
   connectWallet: () => Promise<void>;
   uploadToIPFS: (file: any) => Promise<string | undefined>;
   isWalletConnected: boolean;
@@ -66,7 +65,10 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
   //CONNECTING METAMASK
   const checkIfWalletIsConnected = async () => {
     console.log('check1');
-    if (!window.ethereum) return setError('Please install MetaMask first.');
+    if (!window.ethereum) {
+       setError('Please install MetaMask first.')
+       return false;
+    }
     console.log('check2');
     const accounts = await window.ethereum.request({ method: 'eth_accounts' });
 
@@ -74,8 +76,10 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
       const account = accounts[0];
       setCurrentAccount(account);
       setIsWalletConnected(true);
+      return true;
     } else {
       setError('Connect with Metamask first.');
+      return false;
     }
   };
 
@@ -98,10 +102,6 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
     try {
       const added = await client.add({ content: file });
       const url = `${subdomain}/ipfs/${added.path}`;
-
-      console.log(process.env.IPFS_PROJECT_ID);
-      console.log(process.env.IPFS_PROJECT_SECRET_KEY);
-      console.log(process.env.IPFS_SUBDOMAIN);
 
       return url;
     } catch (error) {
