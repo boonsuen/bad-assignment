@@ -33,7 +33,7 @@ export default function AddAccountPage() {
       setRole(null);
     }
   }, [currentAccount]);
-  
+
   console.log('role', role);
 
   // ---------------------------------------------------------------------//
@@ -59,23 +59,23 @@ export default function AddAccountPage() {
     try {
       if (accountType === 'ADMIN') {
         await addAdmin(accountAddress);
-        toast.success('Admin successfully added!');
+        toast.success('Admin added successfully!');
       } else if (accountType === 'FARM') {
         await addFarm(accountAddress, farmName, farmLocation);
-        toast.success('Farm successfully added!');
+        toast.success('Farm added successfully!');
       } else if (accountType === 'DISTRIBUTION_CENTER') {
         await addDistributionCenter(
           accountAddress,
           distributionCenterName,
           distributionCenterLocation
         );
-        toast.success('Distribution center successfully added!');
+        toast.success('Distribution center added successfully!');
       } else if (accountType === 'RETAILER') {
         await addRetailer(accountAddress, retailerName, retailerLocation);
-        toast.success('Retailer successfully added!');
+        toast.success('Retailer added successfully!');
       } else if (accountType === 'CONSUMER') {
         await addConsumer(accountAddress, consumerName);
-        toast.success('Consumer successfully added!');
+        toast.success('Consumer added successfully!');
       }
     } catch (error) {
       toast.error('Error adding account');

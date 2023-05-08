@@ -1,6 +1,5 @@
 import Layout, { pages, roles } from '@/components/layout/Layout';
 import { DTraceContext } from '../context/Dtrace';
-import { useRouter } from 'next/router';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { Rating } from '@/types';
 import { useDropzone } from 'react-dropzone';

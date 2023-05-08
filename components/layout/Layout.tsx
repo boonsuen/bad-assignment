@@ -8,7 +8,7 @@ import { useRouter } from 'next/router';
 export type roles =
   | 'guest'
   | 'farm'
-  | 'distributionCenter'
+  | 'distribution center'
   | 'retailer'
   | 'consumer'
   | 'admin';
@@ -39,7 +39,7 @@ export const pages: {
   },
   '/catalog': {
     title: 'Catalog Durian',
-    access: 'distributionCenter',
+    access: 'distribution center',
   },
   '/stock-in': {
     title: 'Stock In Durian',
