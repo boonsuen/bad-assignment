@@ -3,6 +3,7 @@ import { SidebarIcons } from '../svg/SidebarIcons.svg';
 import React, { useContext, useEffect } from 'react';
 import { LogoSvg } from '../svg/Logo.svg';
 import { DTraceContext } from '@/context/Dtrace';
+import { useRouter } from 'next/router';
 
 export type roles =
   | 'guest'
@@ -74,6 +75,7 @@ const Layout: React.FC<LayoutProps> = ({
   currentRole,
 }) => {
   const { connectWallet, checkIfWalletIsConnected } = useContext(DTraceContext);
+  const router = useRouter();
 
   const handleConnectMetamask = () => {
     connectWallet();
@@ -84,6 +86,7 @@ const Layout: React.FC<LayoutProps> = ({
       console.log('Account changed');
       
       checkIfWalletIsConnected();
+      router.push('/');
     });
   }, []);
 
