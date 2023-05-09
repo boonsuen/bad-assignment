@@ -836,8 +836,8 @@ contract DTrace {
         return consumerAddresses;
     }
 
-    //GET CONSUMER COUNT
-    function getConsumerCount() public view returns (uint256) {
+    //GET CONSUMER TOTAL
+    function getConsumerTotal() public view returns (uint256) {
         return consumerNum.current();
     }
 
