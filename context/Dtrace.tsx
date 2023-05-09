@@ -41,6 +41,12 @@ interface DTraceData {
   error: string;
   checkRatingStatus: (rating: Rating) => Promise<number>
   checkAccountType: (accountAddress: string) => Promise<string | null>;
+  getContractOwner: () => Promise<string>;
+  getAdminList: () => Promise<any>;
+  getFarmDataList: () => Promise<any>;
+  getDistributionCenterDataList: () => Promise<any>;
+  getRetailerDataList: () => Promise<any>;
+  getConsumerDataList: () => Promise<any>;
   addAdmin: (adminAddress: String) => Promise<void>;
   addFarm: (
     farmAddress: String,
@@ -110,6 +116,12 @@ const defaultValue = {
   currentAccount: '',
   error: '',
   checkAccountType: () => {},
+  getContractOwner: () => {},
+  getAdminList: () => {},
+  getFarmDataList: () => {},
+  getDistributionCenterDataList: () => {},
+  getRetailerDataList: () => {},
+  getConsumerDataList: () => {},
   addAdmin: () => {},
   addFarm: () => {},
   addDistributionCenter: () => {},
@@ -225,6 +237,147 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
     } catch (error) {
       console.error(error);
       setError('Something went wrong in checking account type');
+    }
+  };
+
+  //all-account.tsx
+  const getContractOwner = async () => { //return: ownerAddress
+    try {
+      const contract = await connectSmartContract();
+
+      const owner = await contract.getContractOwner();
+      console.log(owner);
+      return owner;
+    } catch (error) {
+      setError('Something went wrong in getting contract owner');
+    }
+  };
+
+  const getAdminList = async () => { 
+    try {
+      const contract = await connectSmartContract();
+
+      const admin = await contract.getAdminList();
+      console.log(admin);
+      //return: [] of admin addresses
+      return admin;
+    } catch (error) {
+      setError('Something went wrong in getting admin list');
+    }
+  };
+
+  const getFarmDataList = async () => { 
+    try {
+      const contract = await connectSmartContract();
+      
+      const farmLength = await parseInt(contract.getFarmTotal());
+      const farmAddresses = await contract.getFarmList();
+      console.log(farmAddresses);
+
+      const farmDataPromises = farmAddresses.map(async (farmAddress:any) => {
+        const singleFarmData = await contract.getFarmData(farmAddress);
+        return singleFarmData;
+      });
+      
+      const farmDataList = await Promise.all(farmDataPromises);
+      
+      // singleFarmData (in array form):
+      // [farmID : number,
+      // farmAddress : String,
+      // farmName : String,
+      // farmLocation : String]
+
+      //return: farmLength:number, [] of singleFarmData
+      return {farmLength, farmDataList};
+    } catch (error) {
+      console.log("Error");
+      setError("Something went wrong in fetching data.");
+    }
+  };
+
+  const getDistributionCenterDataList = async () => {
+    try {
+      const contract = await connectSmartContract();
+
+      const distributionCenterLength = parseInt(await contract.getDistributionCenterTotal());
+      const distributionCenterAddresses = await contract.getDistributionCenterList();
+      console.log(distributionCenterAddresses);
+      
+      const distributionCenterDataPromises = distributionCenterAddresses.map(async (distributionCenterAddress:any) => {
+        const singleDistributionCenterData = await contract.getDistributionCenterData(distributionCenterAddress);
+        return singleDistributionCenterData;
+      });
+
+      const distributionCenterDataList = await Promise.all(distributionCenterDataPromises);
+
+      // singleDistributionCenterData (in array form):
+      // [distributionCenterID : number,
+      // distributionCenterAddress : String,
+      // distributionCenterName : String,
+      // distributionCenterLocation : String]
+
+      //return: distributionCenterLength:number, [] of singleDistributionCenterData
+      return {distributionCenterLength, distributionCenterDataList};
+    } catch (error) {
+      console.log("Error");
+      setError("Something went wrong in fetching data.");
+    }
+  };
+
+  const getRetailerDataList = async () => {
+    try {
+      const contract = await connectSmartContract();
+
+      const retailerLength = parseInt(await contract.getRetailerTotal());
+      const retailerAddresses = await contract.getRetailerList();
+      console.log(retailerAddresses);
+
+      const retailerDataPromises = retailerAddresses.map(async (retailerAddress:any) => {
+        const singleRetailerData = await contract.getRetailerData(retailerAddress);
+        return singleRetailerData;
+      });
+
+      const retailerDataList = await Promise.all(retailerDataPromises);
+
+      // singleRetailerData (in array form):
+      // [retailerID : number,
+      // retailerAddress : String,
+      // retailerName : String,
+      // retailerLocation : String]
+
+      //return: retailerLength:number, [] of singleRetailerData
+      return {retailerLength, retailerDataList};
+    } catch (error) {
+      console.log("Error");
+      setError("Something went wrong in fetching data.");
+    }
+  };
+
+  const getConsumerDataList = async () => {
+    try {
+      const contract = await connectSmartContract();
+      
+      const consumerLength = parseInt(await contract.getConsumerTotal());
+      const consumerAddresses = await contract.getConsumerList();
+      console.log(consumerAddresses);
+
+      const consumerDataPromises = consumerAddresses.map(async (consumerAddress:any) => {
+        const singleConsumerData = await contract.getConsumerData(consumerAddress);
+        return singleConsumerData;
+      });
+
+      const consumerDataList = await Promise.all(consumerDataPromises);
+
+      // singleConsumerData (in array form):
+      // [consumerID : number,
+      // consumerAddress : String,
+      // consumerName : String]
+
+      //return: consumerLength:number, [] of singleConsumerData
+      return {consumerLength, consumerDataList};
+    } catch (error) {
+      console.log("Error");
+      setError("Something went wrong in fetching data.");
     }
   };
 
@@ -510,7 +663,14 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
         connectWallet,
         isWalletConnected,
         uploadToIPFS,
+        checkRatingStatus,
         checkAccountType,
+        getContractOwner,
+        getAdminList,
+        getFarmDataList,
+        getDistributionCenterDataList,
+        getRetailerDataList,
+        getConsumerDataList,
         addAdmin,
         addFarm,
         addDistributionCenter,
@@ -523,7 +683,6 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
         addDurianRTDetails,
         sellDurian,
         rateDurian,
-        checkRatingStatus,
       }}
     >
       {children}
