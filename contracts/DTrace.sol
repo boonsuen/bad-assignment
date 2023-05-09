@@ -46,7 +46,6 @@ contract DTrace {
     }
 
     event DurianCreated(uint256 durianID);
-    event DurianStatusUpdated(DurianStatus status);
 
     //FARM DETAILS IN DURIAN STRUCT
     struct DurianFarmDetails {
@@ -527,8 +526,6 @@ contract DTrace {
             _durianImg,
             _conditionFarm
         );
-
-        emit DurianStatusUpdated(durians[_durianID].status);
     }
 
     //ADD DURIANDCDETAILS (onlyDistributionCenter)
@@ -562,8 +559,6 @@ contract DTrace {
             _durianImg,
             _conditionDC
         );
-
-        emit DurianStatusUpdated(durians[_durianID].status);
     }
 
     //ADD DURIANRTDETAILS (onlyRetailer)
@@ -597,8 +592,6 @@ contract DTrace {
             _durianImg,
             _conditionRT
         );
-
-        emit DurianStatusUpdated(durians[_durianID].status);
     }
 
     //SELL DURIAN (onlyRetailer)
@@ -620,7 +613,6 @@ contract DTrace {
         durians[_durianID].status = DurianStatus.Sold;
 
         emit DurianSold(_consumerID, _soldTime);
-        emit DurianStatusUpdated(durians[_durianID].status);
     }
 
     //RATE DURIAN (onlyConsumer)
@@ -646,8 +638,6 @@ contract DTrace {
         durians[_durianID].status = DurianStatus.Rated;
 
         emit DurianRated(_durianImg, _taste, _fragrance, _creaminess);
-
-        emit DurianStatusUpdated(durians[_durianID].status);
     }
 
     //=================================

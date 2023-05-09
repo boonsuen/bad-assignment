@@ -2,6 +2,7 @@ const hre = require("hardhat");
 
 async function main() {
   const DTrace = await hre.ethers.getContractFactory("DTrace");
+  // const gasLimit = 5000000; // Set a higher gas limit value
   const dtrace = await DTrace.deploy();
 
   await dtrace.deployed();
