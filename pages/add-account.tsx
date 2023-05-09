@@ -16,6 +16,10 @@ export default function AddAccountPage() {
     addDistributionCenter,
     addRetailer,
     addConsumer,
+    getFarmId,
+    getDCId,
+    getRTId,
+    getConsumerTotal,
   } = useContext(DTraceContext);
   const [role, setRole] = useState<roles | null>(null);
 
@@ -32,9 +36,6 @@ export default function AddAccountPage() {
       setRole(null);
     }
   }, [currentAccount]);
-
-  console.log('role', role);
-
   // ---------------------------------------------------------------------//
 
   const [accountAddress, setAccountAddress] = useState('');
@@ -47,6 +48,12 @@ export default function AddAccountPage() {
   const [retailerName, setRetailerName] = useState('');
   const [retailerLocation, setRetailerLocation] = useState('');
   const [consumerName, setConsumerName] = useState('');
+  const [latestFarmId, setLatestFarmId] = useState<number | null>(null);
+  const [latestDistributionCenterId, setLatestDistributionCenterId] = useState<
+    number | null
+  >(null);
+  const [latestRetailerId, setLatestRetailerId] = useState<number | null>(null);
+  const [latestConsumerId, setLatestConsumerId] = useState<number | null>(null);
 
   const handleAccountTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setAccountType(e.target.value as Roles);
@@ -79,6 +86,11 @@ export default function AddAccountPage() {
             return;
           }
           await addFarm(accountAddress, farmName, farmLocation);
+          const newFarmId = await getFarmId(accountAddress) as any;
+          setLatestFarmId(newFarmId.toNumber());
+          setLatestDistributionCenterId(null);
+          setLatestRetailerId(null);
+          setLatestConsumerId(null);
           toast.success('Farm added successfully!');
         } else if (accountType === 'DISTRIBUTION_CENTER') {
           if (await checkAccountType(accountAddress) === 'Distribution Center') {
@@ -90,6 +102,11 @@ export default function AddAccountPage() {
             distributionCenterName,
             distributionCenterLocation
           );
+          const newDistributionCenterId = await getDCId(accountAddress) as any;
+          setLatestFarmId(null);
+          setLatestDistributionCenterId(newDistributionCenterId.toNumber());
+          setLatestRetailerId(null);
+          setLatestConsumerId(null);
           toast.success('Distribution center added successfully!');
         } else if (accountType === 'RETAILER') {
           if (await checkAccountType(accountAddress) === 'Retailer') {
@@ -97,6 +114,11 @@ export default function AddAccountPage() {
             return;
           }
           await addRetailer(accountAddress, retailerName, retailerLocation);
+          const newRetailerId = await getRTId(accountAddress) as any;
+          setLatestFarmId(null);
+          setLatestDistributionCenterId(null);
+          setLatestRetailerId(newRetailerId.toNumber());
+          setLatestConsumerId(null);
           toast.success('Retailer added successfully!');
         } else if (accountType === 'CONSUMER') {
           if (await checkAccountType(accountAddress) === 'Consumer') {
@@ -104,6 +126,11 @@ export default function AddAccountPage() {
             return;
           }
           await addConsumer(accountAddress, consumerName);
+          const newConsumerId = await getConsumerTotal();
+          setLatestFarmId(null);
+          setLatestDistributionCenterId(null);
+          setLatestRetailerId(null);
+          setLatestConsumerId(newConsumerId);
           toast.success('Consumer added successfully!');
         }
       } catch (error) {
@@ -322,6 +349,42 @@ export default function AddAccountPage() {
             </button>
           </form>
         </div>
+        {latestFarmId !== null && (
+          <div
+            className="p-4 mt-6 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
+            role="alert"
+          >
+            <span className="font-medium">Generated farm ID:</span>{' '}
+            {latestFarmId}
+          </div>
+        )}
+        {latestDistributionCenterId !== null && (
+          <div
+            className="p-4 mt-6 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
+            role="alert"
+          >
+            <span className="font-medium">Generated distribution center ID:</span>{' '}
+            {latestDistributionCenterId}
+          </div>
+        )}
+        {latestRetailerId !== null && (
+          <div
+            className="p-4 mt-6 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
+            role="alert"
+          >
+            <span className="font-medium">Generated retailer ID:</span>{' '}
+            {latestRetailerId}
+          </div>
+        )}
+        {latestConsumerId !== null && (
+          <div
+            className="p-4 mt-6 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
+            role="alert"
+          >
+            <span className="font-medium">Generated consumer ID:</span>{' '}
+            {latestConsumerId}
+          </div>
+        )}
       </div>
     </Layout>
   );

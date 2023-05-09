@@ -1,12 +1,10 @@
 import Layout, { pages, roles } from '@/components/layout/Layout';
 import { DTraceContext } from '../context/Dtrace';
-import { useRouter } from 'next/router';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { Rating } from '@/types';
 import { useDropzone } from 'react-dropzone';
 import Datepicker from 'react-tailwindcss-datepicker';
 import { getUnixTime } from 'date-fns';
-import { ca } from 'date-fns/locale';
 import toast from 'react-hot-toast';
 
 export default function AddDurianPage() {
@@ -24,7 +22,6 @@ export default function AddDurianPage() {
 
   useEffect(() => {
     checkIfWalletIsConnected();
-    console.log(latestDurianId);
 
     if (currentAccount) {
       console.log('currentAccount', currentAccount);
@@ -80,7 +77,7 @@ export default function AddDurianPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+
     if (!fileUrl) {
       alert('Please upload an image of the durian');
       return;
@@ -115,10 +112,9 @@ export default function AddDurianPage() {
         unixHarvestedTime,
         fileUrl,
         conditionFarm
-      )
+      );
       const newDurianId = await checkTotalDurian();
       setLatestDurianId(newDurianId);
-      console.log(latestDurianId);
     } catch (error) {
       toast.error('Error adding durian');
     }
@@ -319,6 +315,15 @@ export default function AddDurianPage() {
             </button>
           </form>
         </div>
+        {latestDurianId && (
+          <div
+            className="p-4 mt-6 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
+            role="alert"
+          >
+            <span className="font-medium">Generated durian ID:</span>{' '}
+            {latestDurianId}
+          </div>
+        )}
       </div>
     </Layout>
   );
