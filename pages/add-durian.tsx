@@ -6,6 +6,8 @@ import { Rating } from '@/types';
 import { useDropzone } from 'react-dropzone';
 import Datepicker from 'react-tailwindcss-datepicker';
 import { getUnixTime } from 'date-fns';
+import { ca } from 'date-fns/locale';
+import toast from 'react-hot-toast';
 
 export default function AddDurianPage() {
   // ---------------------------------------------------------------------//
@@ -15,11 +17,13 @@ export default function AddDurianPage() {
     checkAccountType,
     addDurian,
     checkRatingStatus,
+    getFarmId,
   } = useContext(DTraceContext);
   const [role, setRole] = useState<roles | null>(null);
 
   useEffect(() => {
     checkIfWalletIsConnected();
+    console.log(latestDurianId);
 
     if (currentAccount) {
       console.log('currentAccount', currentAccount);
@@ -36,7 +40,7 @@ export default function AddDurianPage() {
   // ---------------------------------------------------------------------//
 
   const [varietyCode, setVarietyCode] = useState('');
-  const [farmId, setFarmId] = useState<number>();
+  const [farmId, setFarmId] = useState<string>('');
   const [treeId, setTreeId] = useState<number>();
   const [condition, setCondition] = useState<Rating>('Excellent');
   const [harvestedDate, setHarvestedDate] = useState({
@@ -49,6 +53,7 @@ export default function AddDurianPage() {
     ).padStart(2, '0')}`
   );
   const [fileUrl, setFileUrl] = useState<string>();
+  const [latestDurianId, setLatestDurianId] = useState<number>();
 
   const handleConditionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setCondition(e.target.value as Rating);
@@ -90,9 +95,9 @@ export default function AddDurianPage() {
     });
 
     const combinedDate = new Date(
-      harvestedDate.startDate.getFullYear(),
-      harvestedDate.startDate.getMonth(),
-      harvestedDate.startDate.getDate(),
+      new Date(harvestedDate.startDate).getFullYear(),
+      new Date(harvestedDate.startDate).getMonth(),
+      new Date(harvestedDate.startDate).getDate(),
       parseInt(harvestedTime.split(':')[0], 10),
       parseInt(harvestedTime.split(':')[1], 10)
     );
@@ -101,15 +106,29 @@ export default function AddDurianPage() {
 
     const conditionFarm = await checkRatingStatus(condition);
 
-    addDurian(
-      farmId as number,
-      treeId as number,
-      varietyCode,
-      unixHarvestedTime,
-      fileUrl,
-      conditionFarm
-    );
+    try {
+      const newDurianId = await addDurian(
+        Number(farmId),
+        treeId as number,
+        varietyCode,
+        unixHarvestedTime,
+        fileUrl,
+        conditionFarm
+      )
+      
+      setLatestDurianId(newDurianId);
+    } catch (error) {
+      toast.error('Error adding durian');
+    }
   };
+
+  useEffect(() => {
+    if (currentAccount) {
+      getFarmId(currentAccount).then((farmId) => {
+        setFarmId(farmId.toString());
+      });
+    }
+  }, [currentAccount]);
 
   return (
     <Layout
@@ -158,10 +177,10 @@ export default function AddDurianPage() {
                   type="number"
                   id="farm-id"
                   value={farmId}
-                  onChange={(e) => setFarmId(parseInt(e.target.value))}
                   className="relative transition-all duration-300 py-2.5 pl-4 pr-14 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
                   placeholder="e.g. 1"
                   required
+                  disabled
                 />
               </div>
 

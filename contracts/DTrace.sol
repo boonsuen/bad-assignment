@@ -270,11 +270,13 @@ contract DTrace {
         _;
     }
 
-    //only consumer
-    modifier onlyConsumer() {
+    //only bought consumer
+    modifier onlyBoughtConsumer(uint256 _durianID) {
         require(
-            consumers[msg.sender].consumerAddress == msg.sender,
-            "Caller is not a consumer"
+            consumerAddresses[
+                (durians[_durianID].durianCSDetails.consumerID) + 1
+            ] == msg.sender,
+            "Caller is not the consumer who bought this durian"
         );
         _;
     }
@@ -630,7 +632,7 @@ contract DTrace {
         Rating _creaminess
     )
         public
-        onlyConsumer
+        onlyBoughtConsumer(_durianID)
         onlySoldDurian(_durianID)
         validateTime(
             durians[_durianID].durianCSDetails.soldTime,

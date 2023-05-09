@@ -1,6 +1,7 @@
 import Layout, { pages, roles } from '@/components/layout/Layout';
 import { DTraceContext } from '../context/Dtrace';
 import { useContext, useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 
 export default function AddConsumerPage() {
   // ---------------------------------------------------------------------//
@@ -32,9 +33,28 @@ export default function AddConsumerPage() {
   const [consumerAccountAddress, setConsumerAccountAddress] = useState('');
   const [consumerName, setConsumerName] = useState('');
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    addConsumer(consumerAccountAddress, consumerName);
+    if (consumerAccountAddress === '') { 
+      toast.error('Please enter an account address');
+      return;
+    } else if (!(/^0x[a-fA-F0-9]{40}$/.test(consumerAccountAddress))) {
+      toast.error('Please enter a valid account address');
+      return;
+    } else if (consumerAccountAddress.toLowerCase() === currentAccount) {
+      toast.error('You cannot add your own account');
+      return;
+    } else if (await checkAccountType(consumerAccountAddress) === 'Consumer') {
+      toast.error('This account is already a consumer');
+      return;
+    } else {
+      try {
+        await addConsumer(consumerAccountAddress, consumerName);
+        toast.success('Consumer added successfully!');
+      } catch (error) {
+        toast.error('Error adding consumer');
+      }
+    }
   };
 
   return (

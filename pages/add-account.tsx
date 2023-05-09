@@ -55,29 +55,60 @@ export default function AddAccountPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    try {
-      if (accountType === 'ADMIN') {
-        await addAdmin(accountAddress);
-        toast.success('Admin added successfully!');
-      } else if (accountType === 'FARM') {
-        await addFarm(accountAddress, farmName, farmLocation);
-        toast.success('Farm added successfully!');
-      } else if (accountType === 'DISTRIBUTION_CENTER') {
-        await addDistributionCenter(
-          accountAddress,
-          distributionCenterName,
-          distributionCenterLocation
-        );
-        toast.success('Distribution center added successfully!');
-      } else if (accountType === 'RETAILER') {
-        await addRetailer(accountAddress, retailerName, retailerLocation);
-        toast.success('Retailer added successfully!');
-      } else if (accountType === 'CONSUMER') {
-        await addConsumer(accountAddress, consumerName);
-        toast.success('Consumer added successfully!');
+    if (accountAddress === '') { 
+      toast.error('Please enter an account address');
+      return;
+    } else if (!(/^0x[a-fA-F0-9]{40}$/.test(accountAddress))) {
+      toast.error('Please enter a valid account address');
+      return;
+    } else if (accountAddress.toLowerCase() === currentAccount) {
+      toast.error('You cannot add your own account');
+      return;
+    } else {
+      try {
+        if (accountType === 'ADMIN') {
+          if (await checkAccountType(accountAddress) === 'OwnerOrAdmin') {
+            toast.error('This account is already an admin');
+            return;
+          }
+          await addAdmin(accountAddress);
+          toast.success('Admin added successfully!');
+        } else if (accountType === 'FARM') {
+          if (await checkAccountType(accountAddress) === 'Farm') {
+            toast.error('This account is already a farm');
+            return;
+          }
+          await addFarm(accountAddress, farmName, farmLocation);
+          toast.success('Farm added successfully!');
+        } else if (accountType === 'DISTRIBUTION_CENTER') {
+          if (await checkAccountType(accountAddress) === 'Distribution Center') {
+            toast.error('This account is already a distribution center');
+            return;
+          }
+          await addDistributionCenter(
+            accountAddress,
+            distributionCenterName,
+            distributionCenterLocation
+          );
+          toast.success('Distribution center added successfully!');
+        } else if (accountType === 'RETAILER') {
+          if (await checkAccountType(accountAddress) === 'Retailer') {
+            toast.error('This account is already a retailer');
+            return;
+          }
+          await addRetailer(accountAddress, retailerName, retailerLocation);
+          toast.success('Retailer added successfully!');
+        } else if (accountType === 'CONSUMER') {
+          if (await checkAccountType(accountAddress) === 'Consumer') {
+            toast.error('This account is already a consumer');
+            return;
+          }
+          await addConsumer(accountAddress, consumerName);
+          toast.success('Consumer added successfully!');
+        }
+      } catch (error) {
+        toast.error('Error adding account');
       }
-    } catch (error) {
-      toast.error('Error adding account');
     }
   };
 

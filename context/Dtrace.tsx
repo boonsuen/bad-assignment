@@ -73,7 +73,8 @@ interface DTraceData {
     harvestedTime: number,
     durianImg: String,
     conditionFarm: number
-  ) => Promise<void>;
+  ) => Promise<number>;
+  getFarmId: (farmAddress: String) => Promise<number>;
   addDurianDCDetails: (
     durianId: number,
     distributionCenterID: number,
@@ -130,6 +131,7 @@ const defaultValue = {
   checkTotalDurian: () => {},
   checkDurianDetails: () => {},
   addDurian: () => {},
+  getFarmId: () => {},
   addDurianDCDetails: () => {},
   addDurianRTDetails: () => {},
   sellDurian: () => {},
@@ -391,6 +393,7 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
       console.log(admin);
     } catch (error) {
       setError('Something went wrong in adding admin');
+      throw error;
     }
   };
 
@@ -407,6 +410,7 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
       console.log(farm);
     } catch (error) {
       setError('Something went wrong in adding farm');
+      throw error;
     }
   };
 
@@ -427,6 +431,7 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
       console.log(distributionCenter);
     } catch (error) {
       setError('Something went wrong in adding distribution center');
+      throw error;
     }
   };
 
@@ -447,6 +452,7 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
       console.log(retailer);
     } catch (error) {
       setError('Something went wrong in adding retailer');
+      throw error;
     }
   };
 
@@ -463,6 +469,7 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
       console.log(consumer);
     } catch (error) {
       setError('Something went wrong in adding consumer');
+      throw error;
     }
   };
 
@@ -546,6 +553,11 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
   ) => {
     try {
       const contract = await connectSmartContract();
+      // let latestDurianId:number = NaN;
+      // contract.on("DurianCreated", (durianId: any) => {
+      //   console.log("durianID", durianId);
+      //   latestDurianId = durianId;
+      // });
 
       const durian = await contract.addDurian(
         farmID,
@@ -557,8 +569,27 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
       );
       durian.wait();
       console.log(durian);
+      
+      const latestDurianId = await contract.checkTotalDurian();
+      return latestDurianId;
+
     } catch (error) {
       setError('Something went wrong in adding durian');
+      console.log('final error:', error);
+      throw error;
+    }
+  };
+
+  const getFarmId = async (farmAddress: String) => {
+    try {
+      const contract = await connectSmartContract();
+
+      const farmId = await contract.getFarmData(farmAddress);
+
+      console.log('farmId', farmId);
+      return farmId[0];
+    } catch (error) {
+      setError('Something went wrong in getting farm ID');
     }
   };
 
@@ -679,6 +710,7 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
         checkTotalDurian,
         checkDurianDetails,
         addDurian,
+        getFarmId,
         addDurianDCDetails,
         addDurianRTDetails,
         sellDurian,
