@@ -270,7 +270,7 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
     try {
       const contract = await connectSmartContract();
       
-      const farmLength = await parseInt(contract.getFarmTotal());
+      const farmLength = parseInt(await contract.getFarmTotal());
       const farmAddresses = await contract.getFarmList();
       console.log(farmAddresses);
 
