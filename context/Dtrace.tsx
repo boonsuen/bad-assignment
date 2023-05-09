@@ -86,6 +86,7 @@ interface DTraceData {
     durianImg: String,
     conditionDC: number
   ) => Promise<void>;
+  getDCId: (DCAddress: String) => Promise<number>;
   addDurianRTDetails: (
     durianId: number,
     retailerID: number,
@@ -93,6 +94,7 @@ interface DTraceData {
     durianImg: String,
     conditionRT: number
   ) => Promise<void>;
+  getRTId: (RTAddress: String) => Promise<number>;
   sellDurian: (
     durianId: number,
     consumerID: number,
@@ -137,7 +139,9 @@ const defaultValue = {
   addDurian: () => {},
   getFarmId: () => {},
   addDurianDCDetails: () => {},
+  getDCId: () => {},
   addDurianRTDetails: () => {},
+  getRTId: () => {},
   sellDurian: () => {},
   rateDurian: () => {},
 } as unknown as DTraceData;
@@ -669,6 +673,19 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
     }
   };
 
+  const getDCId = async (DCAddress: String) => {
+    try {
+      const contract = await connectSmartContract();
+
+      const DCId = await contract.getDistributionCenterData(DCAddress);
+
+      console.log('DCData', DCId);
+      return DCId[0];
+    } catch (error) {
+      setError('Something went wrong in getting farm ID');
+    }
+  };
+
   //stock-in.tsx
   const addDurianRTDetails = async (
     durianId: number,
@@ -691,6 +708,19 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
       console.log(stockIn);
     } catch (error) {
       setError('Something went wrong in stocking in durian');
+    }
+  };
+
+  const getRTId = async (RTAddress: String) => {
+    try {
+      const contract = await connectSmartContract();
+
+      const RTId = await contract.getRetailerData(RTAddress);
+
+      console.log('RTData', RTId);
+      return RTId[0];
+    } catch (error) {
+      setError('Something went wrong in getting farm ID');
     }
   };
 
@@ -767,7 +797,9 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
         addDurian,
         getFarmId,
         addDurianDCDetails,
+        getDCId,
         addDurianRTDetails,
+        getRTId,
         sellDurian,
         rateDurian,
       }}
