@@ -1,6 +1,17 @@
 import Layout, { pages, roles } from '@/components/layout/Layout';
 import { DTraceContext } from '@/context/Dtrace';
+import { Rating } from '@/types';
 import { useContext, useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
+
+const ratings: Rating[] = ['Bad', 'Poor', 'Fair', 'Good', 'Excellent'];
+const statuses: string[] = [
+  'Harvested',
+  'Arrived at Distribution Center',
+  'Ariivated at Retailer',
+  'Sold',
+  'Rated',
+];
 
 export default function CheckDurianPage() {
   // ---------------------------------------------------------------------//
@@ -36,6 +47,9 @@ export default function CheckDurianPage() {
     e.preventDefault();
     checkDurianDetails(Number(durianId)).then((durianDetails: any) => {
       setDurianDetails(durianDetails);
+      if (durianDetails?.farmDetails[4] === '') {
+        toast.error(`Durian with ID ${durianId} not found.`);
+      }
     });
   };
 
@@ -86,10 +100,20 @@ export default function CheckDurianPage() {
           </form>
         </div>
 
-        {durianDetails !== null && (
-          <table className="w-full mt-8 text-sm text-left text-gray-500 dark:text-gray-400">
+        {durianDetails !== null && durianDetails?.farmDetails[4] !== '' && (
+          <>
+            <div className="mt-8 text-sm font-medium mr-2 pr-2.5 py-0.5">
+              Durian Status : {' '}
+              <span className="bg-blue-100 text-blue-800 text-sm font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
+                {statuses[durianDetails.status]}
+              </span>
+            </div>
             {durianDetails.farmDetails && (
-              <>
+              <table className="border w-full mt-4 text-sm text-left text-gray-500 dark:text-gray-400">
+                <colgroup>
+                  <col style={{ width: '35%' }} />
+                  <col style={{ width: '65%' }} />
+                </colgroup>
                 <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                   <tr>
                     <th scope="col" colSpan={2} className="px-6 py-3">
@@ -150,7 +174,7 @@ export default function CheckDurianPage() {
                       })}`}
                     </td>
                   </tr>
-                  <tr className="bg-white dark:bg-gray-800">
+                  <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
                     <th
                       scope="row"
                       className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
@@ -165,10 +189,291 @@ export default function CheckDurianPage() {
                       />
                     </td>
                   </tr>
+                  <tr className="bg-white dark:bg-gray-800">
+                    <th
+                      scope="row"
+                      className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                    >
+                      Condition
+                    </th>
+                    <td className="px-6 py-4">
+                      {ratings[durianDetails.farmDetails[5]]}
+                    </td>
+                  </tr>
                 </tbody>
-              </>
+              </table>
             )}
-          </table>
+
+            {durianDetails.DCDetails && (
+              <table className="border w-full mt-8 text-sm text-left text-gray-500 dark:text-gray-400">
+                <colgroup>
+                  <col style={{ width: '35%' }} />
+                  <col style={{ width: '65%' }} />
+                </colgroup>
+                <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                  <tr>
+                    <th scope="col" colSpan={2} className="px-6 py-3">
+                      Distribution Center Details
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <th
+                      scope="row"
+                      className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                    >
+                      Distribution Center ID
+                    </th>
+                    <td className="px-6 py-4">
+                      {durianDetails.DCDetails[0].toNumber()}
+                    </td>
+                  </tr>
+                  <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <th
+                      scope="row"
+                      className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                    >
+                      Arrival Date & Time
+                    </th>
+                    <td className="px-6 py-4">
+                      {`${new Date(
+                        durianDetails.DCDetails[1].toNumber() * 1000
+                      ).toLocaleDateString()} ${new Date(
+                        durianDetails.DCDetails[1].toNumber() * 1000
+                      ).toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true,
+                      })}`}
+                    </td>
+                  </tr>
+                  <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <th
+                      scope="row"
+                      className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                    >
+                      Durian Image
+                    </th>
+                    <td className="px-6 py-4">
+                      <img
+                        src={durianDetails.DCDetails[2]}
+                        alt="Durian"
+                        className="w-32 h-32 rounded-lg object-contain border"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white dark:bg-gray-800">
+                    <th
+                      scope="row"
+                      className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                    >
+                      Condition
+                    </th>
+                    <td className="px-6 py-4">
+                      {ratings[durianDetails.DCDetails[3]]}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            )}
+
+            {durianDetails.RTDetails && (
+              <table className="border w-full mt-8 text-sm text-left text-gray-500 dark:text-gray-400">
+                <colgroup>
+                  <col style={{ width: '35%' }} />
+                  <col style={{ width: '65%' }} />
+                </colgroup>
+                <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                  <tr>
+                    <th scope="col" colSpan={2} className="px-6 py-3">
+                      Retailer Details
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <th
+                      scope="row"
+                      className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                    >
+                      Retailer ID
+                    </th>
+                    <td className="px-6 py-4">
+                      {durianDetails.RTDetails[0].toNumber()}
+                    </td>
+                  </tr>
+                  <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <th
+                      scope="row"
+                      className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                    >
+                      Arrival Date & Time
+                    </th>
+                    <td className="px-6 py-4">
+                      {`${new Date(
+                        durianDetails.RTDetails[1].toNumber() * 1000
+                      ).toLocaleDateString()} ${new Date(
+                        durianDetails.RTDetails[1].toNumber() * 1000
+                      ).toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true,
+                      })}`}
+                    </td>
+                  </tr>
+                  <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <th
+                      scope="row"
+                      className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                    >
+                      Durian Image
+                    </th>
+                    <td className="px-6 py-4">
+                      <img
+                        src={durianDetails.RTDetails[2]}
+                        alt="Durian"
+                        className="w-32 h-32 rounded-lg object-contain border"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white dark:bg-gray-800">
+                    <th
+                      scope="row"
+                      className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                    >
+                      Condition
+                    </th>
+                    <td className="px-6 py-4">
+                      {ratings[durianDetails.RTDetails[3]]}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            )}
+
+            {durianDetails.soldDetails && (
+              <table className="border w-full mt-8 text-sm text-left text-gray-500 dark:text-gray-400">
+                <colgroup>
+                  <col style={{ width: '35%' }} />
+                  <col style={{ width: '65%' }} />
+                </colgroup>
+                <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                  <tr>
+                    <th scope="col" colSpan={2} className="px-6 py-3">
+                      Sold Details
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <th
+                      scope="row"
+                      className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                    >
+                      Consumer ID
+                    </th>
+                    <td className="px-6 py-4">
+                      {durianDetails.soldDetails[0].toNumber()}
+                    </td>
+                  </tr>
+                  <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <th
+                      scope="row"
+                      className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                    >
+                      Sold Date & Time
+                    </th>
+                    <td className="px-6 py-4">
+                      {`${new Date(
+                        durianDetails.soldDetails[1].toNumber() * 1000
+                      ).toLocaleDateString()} ${new Date(
+                        durianDetails.soldDetails[1].toNumber() * 1000
+                      ).toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true,
+                      })}`}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            )}
+
+            {durianDetails.ratingDetails && (
+              <table className="border w-full mt-8 text-sm text-left text-gray-500 dark:text-gray-400">
+                <colgroup>
+                  <col style={{ width: '35%' }} />
+                  <col style={{ width: '65%' }} />
+                </colgroup>
+                <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                  <tr>
+                    <th scope="col" colSpan={2} className="px-6 py-3">
+                      Rating Details
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <th
+                      scope="row"
+                      className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                    >
+                      Durian Image
+                    </th>
+                    <td className="px-6 py-4">
+                      <img
+                        src={durianDetails.ratingDetails[0]}
+                        alt="Durian"
+                        className="w-32 h-32 rounded-lg object-contain border"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <th
+                      scope="row"
+                      className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                    >
+                      Taste
+                    </th>
+                    <td className="px-6 py-4">
+                      {ratings[durianDetails.ratingDetails[1]]}
+                    </td>
+                  </tr>
+                  <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <th
+                      scope="row"
+                      className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                    >
+                      Fragrance
+                    </th>
+                    <td className="px-6 py-4">
+                      {ratings[durianDetails.ratingDetails[2]]}
+                    </td>
+                  </tr>
+                  <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <th
+                      scope="row"
+                      className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                    >
+                      Creaminess
+                    </th>
+                    <td className="px-6 py-4">
+                      {ratings[durianDetails.ratingDetails[3]]}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            )}
+          </>
+        )}
+
+        {durianDetails?.farmDetails[4] === '' && (
+          <div className="mt-8 text-sm text-left text-gray-500 dark:text-gray-400">
+            <p className="text-red-500">
+              Durian with ID {durianId} does not exist.
+            </p>
+          </div>
         )}
       </div>
     </Layout>
