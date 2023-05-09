@@ -5,11 +5,18 @@ import { Rating } from '@/types';
 import { useDropzone } from 'react-dropzone';
 import Datepicker from 'react-tailwindcss-datepicker';
 import { getUnixTime } from 'date-fns';
+import toast from 'react-hot-toast';
 
 export default function CatalogDurianPage() {
   // ---------------------------------------------------------------------//
-  const { currentAccount, checkIfWalletIsConnected, checkAccountType, addDurianDCDetails, checkRatingStatus} =
-    useContext(DTraceContext);
+  const {
+    currentAccount,
+    checkIfWalletIsConnected,
+    checkAccountType,
+    addDurianDCDetails,
+    checkRatingStatus,
+    getDCId,
+  } = useContext(DTraceContext);
   const [role, setRole] = useState<roles | null>(null);
 
   useEffect(() => {
@@ -30,7 +37,7 @@ export default function CatalogDurianPage() {
   // ---------------------------------------------------------------------//
 
   const [durianId, setDurianId] = useState<number>();
-  const [distributionCenterId, setDistributionCenterId] = useState<number>();
+  const [distributionCenterId, setDistributionCenterId] = useState<string>('');
   const [arrivalDate, setArrivalDate] = useState({
     startDate: new Date(),
     endDate: new Date(),
@@ -94,14 +101,26 @@ export default function CatalogDurianPage() {
 
     const conditionDC = await checkRatingStatus(condition);
 
-    addDurianDCDetails(
-      durianId as number,
-      distributionCenterId as number,
-      unixArrivalTime,
-      fileUrl,  
-      conditionDC
-    );
+    try {
+      await addDurianDCDetails(
+        durianId as number,
+        Number(distributionCenterId),
+        unixArrivalTime,
+        fileUrl,
+        conditionDC
+      );
+    } catch (error) {
+      toast.error('Error adding durian');
+    }
   };
+
+  useEffect(() => {
+    if (currentAccount) {
+      getDCId(currentAccount).then((distributionCenterId: any) => {
+        setDistributionCenterId(distributionCenterId.toNumber().toString());
+      });
+    }
+  }, [currentAccount]);
 
   return (
     <Layout
@@ -146,10 +165,11 @@ export default function CatalogDurianPage() {
                   Distribution Center ID
                 </label>
                 <input
+                  disabled
                   type="number"
                   id="distribution-center-id"
                   value={distributionCenterId}
-                  onChange={(e) => setDistributionCenterId(parseInt(e.target.value))}
+                  onChange={(e) => setDistributionCenterId(e.target.value)}
                   className="relative transition-all duration-300 py-2.5 px-4 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
                   placeholder="e.g. 1"
                   required

@@ -670,6 +670,7 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
       console.log(catalog);
     } catch (error) {
       setError('Something went wrong in cataloging durian');
+      throw error;
     }
   };
 
@@ -708,6 +709,7 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
       console.log(stockIn);
     } catch (error) {
       setError('Something went wrong in stocking in durian');
+      throw error;
     }
   };
 
@@ -763,6 +765,7 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
       console.log(rate);
     } catch (error) {
       setError('Something went wrong in rating durian');
+      throw error;
     }
   };
 

@@ -5,11 +5,18 @@ import { Rating } from '@/types';
 import { useDropzone } from 'react-dropzone';
 import Datepicker from 'react-tailwindcss-datepicker';
 import { getUnixTime } from 'date-fns';
+import toast from 'react-hot-toast';
 
 export default function StockInDurianPage() {
   // ---------------------------------------------------------------------//
-  const { currentAccount, checkIfWalletIsConnected, checkAccountType, addDurianRTDetails, checkRatingStatus } =
-    useContext(DTraceContext);
+  const {
+    currentAccount,
+    checkIfWalletIsConnected,
+    checkAccountType,
+    addDurianRTDetails,
+    checkRatingStatus,
+    getRTId,
+  } = useContext(DTraceContext);
   const [role, setRole] = useState<roles | null>(null);
 
   useEffect(() => {
@@ -30,7 +37,7 @@ export default function StockInDurianPage() {
   // ---------------------------------------------------------------------//
 
   const [durianId, setDurianId] = useState<number>();
-  const [retailerId, setRetailerId] = useState<number>();
+  const [retailerId, setRetailerId] = useState<string>('');
   const [arrivalDate, setArrivalDate] = useState({
     startDate: new Date(),
     endDate: new Date(),
@@ -83,9 +90,9 @@ export default function StockInDurianPage() {
     });
 
     const combinedDate = new Date(
-      arrivalDate.startDate.getFullYear(),
-      arrivalDate.startDate.getMonth(),
-      arrivalDate.startDate.getDate(),
+      new Date(arrivalDate.startDate).getFullYear(),
+      new Date(arrivalDate.startDate).getMonth(),
+      new Date(arrivalDate.startDate).getDate(),
       parseInt(arrivalTime.split(':')[0], 10),
       parseInt(arrivalTime.split(':')[1], 10)
     );
@@ -94,14 +101,26 @@ export default function StockInDurianPage() {
 
     const conditionRT = await checkRatingStatus(condition);
 
-    addDurianRTDetails(
-      durianId as number,
-      retailerId as number,
-      unixArrivalTime,
-      fileUrl,
-      conditionRT
-    );
+    try {
+      await addDurianRTDetails(
+        durianId as number,
+        Number(retailerId),
+        unixArrivalTime,
+        fileUrl,
+        conditionRT
+      );
+    } catch (error) {
+      toast.error('Error adding durian');
+    }
   };
+
+  useEffect(() => {
+    if (currentAccount) {
+      getRTId(currentAccount).then((retailerId: any) => {
+        setRetailerId(retailerId.toNumber().toString());
+      });
+    }
+  }, [currentAccount]);
 
   return (
     <Layout
@@ -146,10 +165,11 @@ export default function StockInDurianPage() {
                   Retailer ID
                 </label>
                 <input
+                  disabled
                   type="number"
                   id="retailer-id"
                   value={retailerId}
-                  onChange={(e) => setRetailerId(parseInt(e.target.value))}
+                  onChange={(e) => setRetailerId(e.target.value)}
                   className="relative transition-all duration-300 py-2.5 px-4 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
                   placeholder="e.g. 1"
                   required

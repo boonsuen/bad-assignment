@@ -472,7 +472,7 @@ export default function CheckDurianPage() {
           </>
         )}
 
-        {errorMessage !== '' && (
+        {errorMessage !== '' && !(durianDetails !== null && durianDetails?.farmDetails[4] !== '') && (
           <div className="mt-8 text-sm text-left text-gray-500 dark:text-gray-400">
             <p className="text-red-500">
               {errorMessage}

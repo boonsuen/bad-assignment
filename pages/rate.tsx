@@ -3,11 +3,17 @@ import { DTraceContext } from '../context/Dtrace';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { Rating } from '@/types';
 import { useDropzone } from 'react-dropzone';
+import toast from 'react-hot-toast';
 
 export default function AddConsumerPage() {
   // ---------------------------------------------------------------------//
-  const { currentAccount, checkIfWalletIsConnected, checkAccountType, rateDurian, checkRatingStatus } =
-    useContext(DTraceContext);
+  const {
+    currentAccount,
+    checkIfWalletIsConnected,
+    checkAccountType,
+    rateDurian,
+    checkRatingStatus,
+  } = useContext(DTraceContext);
   const [role, setRole] = useState<roles | null>(null);
 
   useEffect(() => {
@@ -76,13 +82,17 @@ export default function AddConsumerPage() {
     const fragranceNum = await checkRatingStatus(fragrance);
     const creaminessNum = await checkRatingStatus(creaminess);
 
-    rateDurian (
-      durianId as number,
-      fileUrl,
-      tasteNum,
-      fragranceNum,
-      creaminessNum
-    )
+    try {
+      await rateDurian(
+        durianId as number,
+        fileUrl,
+        tasteNum,
+        fragranceNum,
+        creaminessNum
+      );
+    } catch (error) {
+      toast.error('Error adding durian');
+    }
   };
 
   return (
