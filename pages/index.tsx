@@ -4,8 +4,12 @@ import { useContext, useEffect, useState } from 'react';
 
 export default function CheckDurianPage() {
   // ---------------------------------------------------------------------//
-  const { currentAccount, checkIfWalletIsConnected, checkAccountType } =
-    useContext(DTraceContext);
+  const {
+    currentAccount,
+    checkIfWalletIsConnected,
+    checkAccountType,
+    checkDurianDetails,
+  } = useContext(DTraceContext);
   const [role, setRole] = useState<roles | null>(null);
 
   useEffect(() => {
@@ -25,12 +29,17 @@ export default function CheckDurianPage() {
   console.log('role', role);
   // ---------------------------------------------------------------------//
 
-  const [durianId, setDurianId] = useState('');
+  const [durianId, setDurianId] = useState<string>('');
+  const [durianDetails, setDurianDetails] = useState<any>(null);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('Form submission data', { durianId });
+    checkDurianDetails(Number(durianId)).then((durianDetails: any) => {
+      setDurianDetails(durianDetails);
+    });
   };
+
+  console.log('durianDetails', durianDetails);
 
   return (
     <Layout
@@ -58,11 +67,11 @@ export default function CheckDurianPage() {
                   Durian ID
                 </label>
                 <input
-                  type="text"
+                  type="number"
                   value={durianId}
                   onChange={(e) => setDurianId(e.target.value)}
                   id="durian-id"
-                  className="relative transition-all duration-300 py-2.5 pl-4 pr-14 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
+                  className="relative transition-all duration-300 py-2.5 px-4 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
                   placeholder="e.g. 1"
                   required
                 />
@@ -76,6 +85,91 @@ export default function CheckDurianPage() {
             </button>
           </form>
         </div>
+
+        {durianDetails !== null && (
+          <table className="w-full mt-8 text-sm text-left text-gray-500 dark:text-gray-400">
+            {durianDetails.farmDetails && (
+              <>
+                <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                  <tr>
+                    <th scope="col" colSpan={2} className="px-6 py-3">
+                      Farm Details
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <th
+                      scope="row"
+                      className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                    >
+                      Farm ID
+                    </th>
+                    <td className="px-6 py-4">
+                      {durianDetails.farmDetails[0].toNumber()}
+                    </td>
+                  </tr>
+                  <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <th
+                      scope="row"
+                      className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                    >
+                      Tree ID
+                    </th>
+                    <td className="px-6 py-4">
+                      {durianDetails.farmDetails[1].toNumber()}
+                    </td>
+                  </tr>
+                  <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <th
+                      scope="row"
+                      className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                    >
+                      Variety Code
+                    </th>
+                    <td className="px-6 py-4">
+                      {durianDetails.farmDetails[2]}
+                    </td>
+                  </tr>
+                  <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <th
+                      scope="row"
+                      className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                    >
+                      Harvested Date & Time
+                    </th>
+                    <td className="px-6 py-4">
+                      {`${new Date(
+                        durianDetails.farmDetails[3].toNumber() * 1000
+                      ).toLocaleDateString()} ${new Date(
+                        durianDetails.farmDetails[3].toNumber() * 1000
+                      ).toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true,
+                      })}`}
+                    </td>
+                  </tr>
+                  <tr className="bg-white dark:bg-gray-800">
+                    <th
+                      scope="row"
+                      className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                    >
+                      Durian Image
+                    </th>
+                    <td className="px-6 py-4">
+                      <img
+                        src={durianDetails.farmDetails[4]}
+                        alt="Durian"
+                        className="w-32 h-32 rounded-lg object-contain border"
+                      />
+                    </td>
+                  </tr>
+                </tbody>
+              </>
+            )}
+          </table>
+        )}
       </div>
     </Layout>
   );

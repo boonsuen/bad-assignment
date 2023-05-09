@@ -134,12 +134,10 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
 
   // CONNECTING METAMASK
   const checkIfWalletIsConnected = async () => {
-    console.log('check1');
     if (!window.ethereum) {
       setError('Please install MetaMask first.');
       return false;
     }
-    console.log('check2');
     const accounts = await window.ethereum.request({ method: 'eth_accounts' });
 
     if (accounts.length !== 0) {
@@ -223,8 +221,6 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
       const contract = await connectSmartContract();
 
       const accountType = await contract.checkAccountType(accountAddress);
-      // accountType.wait();
-      console.log('accountType', accountType);
       return accountType;
     } catch (error) {
       console.error(error);
