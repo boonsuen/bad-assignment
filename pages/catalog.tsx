@@ -219,7 +219,7 @@ export default function CatalogDurianPage() {
                       {fileUrl ? (
                         <img
                           src={fileUrl}
-                          className="mx-auto mb-3 h-[100px] w-[100px] object-contain border text-gray-400"
+                          className="mx-auto mb-3 h-32 w-32 object-contain border text-gray-400"
                         />
                       ) : (
                         <svg
