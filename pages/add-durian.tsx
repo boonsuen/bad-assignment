@@ -18,6 +18,7 @@ export default function AddDurianPage() {
     addDurian,
     checkRatingStatus,
     getFarmId,
+    checkTotalDurian,
   } = useContext(DTraceContext);
   const [role, setRole] = useState<roles | null>(null);
 
@@ -79,7 +80,7 @@ export default function AddDurianPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+    
     if (!fileUrl) {
       alert('Please upload an image of the durian');
       return;
@@ -107,7 +108,7 @@ export default function AddDurianPage() {
     const conditionFarm = await checkRatingStatus(condition);
 
     try {
-      const newDurianId = await addDurian(
+      await addDurian(
         Number(farmId),
         treeId as number,
         varietyCode,
@@ -115,8 +116,9 @@ export default function AddDurianPage() {
         fileUrl,
         conditionFarm
       )
-      
+      const newDurianId = await checkTotalDurian();
       setLatestDurianId(newDurianId);
+      console.log(latestDurianId);
     } catch (error) {
       toast.error('Error adding durian');
     }

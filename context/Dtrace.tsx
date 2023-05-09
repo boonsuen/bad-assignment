@@ -1,6 +1,6 @@
 import React, { useState, useContext, createContext, useEffect } from 'react';
 import Web3Modal from 'web3modal';
-import { Signer, ethers } from 'ethers';
+import { BigNumber, Signer, ethers } from 'ethers';
 import { create as ipfsHttpClient } from 'ipfs-http-client';
 import { Rating } from '@/types';
 
@@ -53,17 +53,21 @@ interface DTraceData {
     farmName: String,
     farmLocation: String
   ) => Promise<void>;
+  getConsumerTotal: () => Promise<any>;
   addDistributionCenter: (
     distributionCenterAddress: String,
     distributionCenterName: String,
     distributionCenterLocation: String
   ) => Promise<void>;
+  getDistributionCenterTotal: () => Promise<any>;
   addRetailer: (
     retailerAddress: String,
     retailerName: String,
     retailerLocation: String
   ) => Promise<void>;
+  getRetailerTotal: () => Promise<any>;
   addConsumer: (consumerAddress: String, consumerName: String) => Promise<void>;
+  getFarmTotal: () => Promise<any>;
   checkTotalDurian: () => Promise<any>;
   checkDurianDetails: any;
   addDurian: (
@@ -73,7 +77,7 @@ interface DTraceData {
     harvestedTime: number,
     durianImg: String,
     conditionFarm: number
-  ) => Promise<number>;
+  ) => Promise<void>;
   getFarmId: (farmAddress: String) => Promise<number>;
   addDurianDCDetails: (
     durianId: number,
@@ -397,6 +401,19 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
     }
   };
 
+  const getFarmTotal = async () => {
+    try {
+      const contract = await connectSmartContract();
+
+      const farmTotal:number = (await contract.getFarmTotal()).toNumber();
+      console.log(farmTotal);
+      return farmTotal;
+    } catch (error) {
+      setError('Something went wrong in checking total farm');
+    }
+  };
+
+
   const addFarm = async (
     farmAddress: String,
     farmName: String,
@@ -435,6 +452,18 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
     }
   };
 
+  const getDistributionCenterTotal = async () => {
+    try {
+      const contract = await connectSmartContract();
+
+      const distributionCenterTotal:number = (await contract.getDistributionCenterTotal()).toNumber();
+      console.log(distributionCenterTotal);
+      return distributionCenterTotal;
+    } catch (error) {
+      setError('Something went wrong in checking total distribution center');
+    }
+  };
+
   const addRetailer = async (
     retailerAddress: String,
     retailerName: String,
@@ -456,6 +485,18 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
     }
   };
 
+  const getRetailerTotal = async () => {
+    try {
+      const contract = await connectSmartContract();
+
+      const retailerTotal:number = (await contract.getRetailerTotal()).toNumber();
+      console.log(retailerTotal);
+      return retailerTotal;
+    } catch (error) {
+      setError('Something went wrong in checking total retailer');
+    }
+  };
+
   //add-account.tsx, add-consumer.tsx
   const addConsumer = async (consumerAddress: String, consumerName: String) => {
     try {
@@ -473,18 +514,19 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
     }
   };
 
-  //check.tsx
-  const checkTotalDurian = async () => {
+  const getConsumerTotal = async () => {
     try {
       const contract = await connectSmartContract();
 
-      const total = await contract.checkTotalDurian();
-      console.log(total);
-      return total;
+      const consumerTotal:number = (await contract.getConsumerTotal()).toNumber();
+      console.log(consumerTotal);
+      return consumerTotal;
     } catch (error) {
-      setError('Something went wrong in checking total durian');
+      setError('Something went wrong in checking total consumer');
     }
   };
+
+  //check.tsx
 
   const checkDurianDetails = async (durianId: number) => {
     try {
@@ -567,16 +609,25 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
         durianImg,
         conditionFarm
       );
-      durian.wait();
+      await durian.wait();
       console.log(durian);
-      
-      const latestDurianId = await contract.checkTotalDurian();
-      return latestDurianId;
 
     } catch (error) {
       setError('Something went wrong in adding durian');
       console.log('final error:', error);
       throw error;
+    }
+  };
+
+  const checkTotalDurian = async () => {
+    try {
+      const contract = await connectSmartContract();
+
+      const total:number = (await contract.checkTotalDurian()).toNumber();
+      console.log(total);
+      return total;
+    } catch (error) {
+      setError('Something went wrong in checking total durian');
     }
   };
 
@@ -704,9 +755,13 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
         getConsumerDataList,
         addAdmin,
         addFarm,
+        getFarmTotal,
         addDistributionCenter,
+        getDistributionCenterTotal,
         addRetailer,
+        getRetailerTotal,
         addConsumer,
+        getConsumerTotal,
         checkTotalDurian,
         checkDurianDetails,
         addDurian,
