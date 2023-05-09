@@ -109,6 +109,7 @@ export default function CatalogDurianPage() {
         fileUrl,
         conditionDC
       );
+      toast.success('Durian cataloged successfully!');
     } catch (error) {
       toast.error('Error adding durian');
     }

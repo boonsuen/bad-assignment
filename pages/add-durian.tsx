@@ -115,6 +115,7 @@ export default function AddDurianPage() {
       );
       const newDurianId = await checkTotalDurian();
       setLatestDurianId(newDurianId);
+      toast.success('Durian added successfully!');
     } catch (error) {
       toast.error('Error adding durian');
     }

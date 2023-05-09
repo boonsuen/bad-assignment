@@ -90,6 +90,7 @@ export default function AddConsumerPage() {
         fragranceNum,
         creaminessNum
       );
+      toast.success("Durian rated successfully!");
     } catch (error) {
       toast.error('Error adding durian');
     }

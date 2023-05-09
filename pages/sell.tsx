@@ -3,6 +3,7 @@ import { DTraceContext } from '../context/Dtrace';
 import { useContext, useEffect, useState } from 'react';
 import Datepicker from 'react-tailwindcss-datepicker';
 import { getUnixTime } from 'date-fns';
+import toast from 'react-hot-toast';
 
 export default function SellDurianPage() {
   // ---------------------------------------------------------------------//
@@ -44,7 +45,7 @@ export default function SellDurianPage() {
     setSoldDate(date);
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log('Form submission date', {
       durianId,
@@ -52,16 +53,23 @@ export default function SellDurianPage() {
     });
 
   const combinedDate = new Date(
-    soldDate.startDate.getFullYear(),
-    soldDate.startDate.getMonth(),
-    soldDate.startDate.getDate(),
+    new Date (soldDate.startDate).getFullYear(),
+    new Date (soldDate.startDate).getMonth(),
+    new Date (soldDate.startDate).getDate(),
     parseInt(soldTime.split(':')[0], 10),
     parseInt(soldTime.split(':')[1], 10)
   );
 
   const unixSoldTime = getUnixTime(combinedDate);
 
-  sellDurian(durianId as number, consumerId as number, unixSoldTime);
+  try {
+    await sellDurian(durianId as number, consumerId as number, unixSoldTime);
+    toast.success('Durian sold successfully!');
+  } catch (error) {
+    console.error(error);
+    toast.error('Error selling durian');
+    return;
+  }
   };
 
   return (

@@ -273,7 +273,7 @@ contract DTrace {
     modifier onlyBoughtConsumer(uint256 _durianID) {
         require(
             consumerAddresses[
-                (durians[_durianID].durianCSDetails.consumerID) + 1
+                (durians[_durianID].durianCSDetails.consumerID - 1)
             ] == msg.sender,
             "Caller is not the consumer who bought this durian"
         );

@@ -740,6 +740,8 @@ export const DTraceProvider = ({ children }: DTraceContextProviderProps) => {
       console.log(sell);
     } catch (error) {
       setError('Something went wrong in selling durian');
+
+      throw error;
     }
   };
 

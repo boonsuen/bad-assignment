@@ -109,6 +109,7 @@ export default function StockInDurianPage() {
         fileUrl,
         conditionRT
       );
+      toast.success('Durian stocked in successfully!');
     } catch (error) {
       toast.error('Error adding durian');
     }
