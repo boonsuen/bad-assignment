@@ -10,6 +10,7 @@ export default function AddConsumerPage() {
     checkIfWalletIsConnected,
     checkAccountType,
     addConsumer,
+    getConsumerTotal,
   } = useContext(DTraceContext);
   const [role, setRole] = useState<roles | null>(null);
 
@@ -32,24 +33,29 @@ export default function AddConsumerPage() {
 
   const [consumerAccountAddress, setConsumerAccountAddress] = useState('');
   const [consumerName, setConsumerName] = useState('');
+  const [latestConsumerId, setLatestConsumerId] = useState<number | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (consumerAccountAddress === '') { 
+    if (consumerAccountAddress === '') {
       toast.error('Please enter an account address');
       return;
-    } else if (!(/^0x[a-fA-F0-9]{40}$/.test(consumerAccountAddress))) {
+    } else if (!/^0x[a-fA-F0-9]{40}$/.test(consumerAccountAddress)) {
       toast.error('Please enter a valid account address');
       return;
     } else if (consumerAccountAddress.toLowerCase() === currentAccount) {
       toast.error('You cannot add your own account');
       return;
-    } else if (await checkAccountType(consumerAccountAddress) === 'Consumer') {
+    } else if (
+      (await checkAccountType(consumerAccountAddress)) === 'Consumer'
+    ) {
       toast.error('This account is already a consumer');
       return;
     } else {
       try {
         await addConsumer(consumerAccountAddress, consumerName);
+        const newConsumerId = await getConsumerTotal();
+        setLatestConsumerId(newConsumerId);
         toast.success('Consumer added successfully!');
       } catch (error) {
         toast.error('Error adding consumer');
@@ -119,6 +125,15 @@ export default function AddConsumerPage() {
             </button>
           </form>
         </div>
+        {latestConsumerId !== null && (
+          <div
+            className="p-4 mt-6 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
+            role="alert"
+          >
+            <span className="font-medium">Generated consumer ID:</span>{' '}
+            {latestConsumerId}
+          </div>
+        )}
       </div>
     </Layout>
   );

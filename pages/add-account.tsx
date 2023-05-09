@@ -16,9 +16,9 @@ export default function AddAccountPage() {
     addDistributionCenter,
     addRetailer,
     addConsumer,
-    getFarmId,
-    getDCId,
-    getRTId,
+    getFarmTotal,
+    getDistributionCenterTotal,
+    getRetailerTotal,
     getConsumerTotal,
   } = useContext(DTraceContext);
   const [role, setRole] = useState<roles | null>(null);
@@ -62,10 +62,10 @@ export default function AddAccountPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (accountAddress === '') { 
+    if (accountAddress === '') {
       toast.error('Please enter an account address');
       return;
-    } else if (!(/^0x[a-fA-F0-9]{40}$/.test(accountAddress))) {
+    } else if (!/^0x[a-fA-F0-9]{40}$/.test(accountAddress)) {
       toast.error('Please enter a valid account address');
       return;
     } else if (accountAddress.toLowerCase() === currentAccount) {
@@ -74,26 +74,28 @@ export default function AddAccountPage() {
     } else {
       try {
         if (accountType === 'ADMIN') {
-          if (await checkAccountType(accountAddress) === 'OwnerOrAdmin') {
+          if ((await checkAccountType(accountAddress)) === 'OwnerOrAdmin') {
             toast.error('This account is already an admin');
             return;
           }
           await addAdmin(accountAddress);
           toast.success('Admin added successfully!');
         } else if (accountType === 'FARM') {
-          if (await checkAccountType(accountAddress) === 'Farm') {
+          if ((await checkAccountType(accountAddress)) === 'Farm') {
             toast.error('This account is already a farm');
             return;
           }
           await addFarm(accountAddress, farmName, farmLocation);
-          const newFarmId = await getFarmId(accountAddress) as any;
-          setLatestFarmId(newFarmId.toNumber());
+          const newFarmId = await getFarmTotal();
+          setLatestFarmId(newFarmId);
           setLatestDistributionCenterId(null);
           setLatestRetailerId(null);
           setLatestConsumerId(null);
           toast.success('Farm added successfully!');
         } else if (accountType === 'DISTRIBUTION_CENTER') {
-          if (await checkAccountType(accountAddress) === 'Distribution Center') {
+          if (
+            (await checkAccountType(accountAddress)) === 'Distribution Center'
+          ) {
             toast.error('This account is already a distribution center');
             return;
           }
@@ -102,26 +104,26 @@ export default function AddAccountPage() {
             distributionCenterName,
             distributionCenterLocation
           );
-          const newDistributionCenterId = await getDCId(accountAddress) as any;
+          const newDistributionCenterId = await getDistributionCenterTotal();
           setLatestFarmId(null);
-          setLatestDistributionCenterId(newDistributionCenterId.toNumber());
+          setLatestDistributionCenterId(newDistributionCenterId);
           setLatestRetailerId(null);
           setLatestConsumerId(null);
           toast.success('Distribution center added successfully!');
         } else if (accountType === 'RETAILER') {
-          if (await checkAccountType(accountAddress) === 'Retailer') {
+          if ((await checkAccountType(accountAddress)) === 'Retailer') {
             toast.error('This account is already a retailer');
             return;
           }
           await addRetailer(accountAddress, retailerName, retailerLocation);
-          const newRetailerId = await getRTId(accountAddress) as any;
+          const newRetailerId = await getRetailerTotal();
           setLatestFarmId(null);
           setLatestDistributionCenterId(null);
-          setLatestRetailerId(newRetailerId.toNumber());
+          setLatestRetailerId(newRetailerId);
           setLatestConsumerId(null);
           toast.success('Retailer added successfully!');
         } else if (accountType === 'CONSUMER') {
-          if (await checkAccountType(accountAddress) === 'Consumer') {
+          if ((await checkAccountType(accountAddress)) === 'Consumer') {
             toast.error('This account is already a consumer');
             return;
           }
@@ -363,7 +365,9 @@ export default function AddAccountPage() {
             className="p-4 mt-6 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
             role="alert"
           >
-            <span className="font-medium">Generated distribution center ID:</span>{' '}
+            <span className="font-medium">
+              Generated distribution center ID:
+            </span>{' '}
             {latestDistributionCenterId}
           </div>
         )}
