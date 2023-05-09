@@ -23,6 +23,8 @@ export const SidebarIcons = ({
     return <RateSvg isActive={isActive} />;
   } else if (path === '/add-account') {
     return <AddAccountSvg isActive={isActive} />;
+  } else if (path === '/view-accounts') {
+    return <ViewAccountsSvg isActive={isActive} />;
   } else {
     return <></>;
   }
@@ -175,6 +177,25 @@ const AddAccountSvg = ({ isActive }: { isActive: boolean }) => {
         strokeLinecap="round"
         strokeLinejoin="round"
         d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z"
+      />
+    </svg>
+  );
+};
+
+const ViewAccountsSvg = ({ isActive }: { isActive: boolean }) => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke-width="1.5"
+      stroke="currentColor"
+      className={'w-6 h-6' + (isActive ? ' text-primary' : ' text-gray-500')}
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
       />
     </svg>
   );

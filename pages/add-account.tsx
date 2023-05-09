@@ -1,6 +1,5 @@
 import Layout, { pages, roles } from '@/components/layout/Layout';
 import { DTraceContext } from '@/context/Dtrace';
-import { useRouter } from 'next/router';
 import { useContext, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 
