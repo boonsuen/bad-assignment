@@ -52,5 +52,9 @@ module.exports = {
         `0x${process.env.OWNER_PRIVATE_KEY}`,
       ],
     },
+    sepolia : {
+      url: `https://sepolia.infura.io/v3/${process.env.SEPOLIA_PROVIDER_URL}`,
+      accounts: [`0x${process.env.SEPOLIA_PRIVATE_KEY}`]
+    }
   },
 };
